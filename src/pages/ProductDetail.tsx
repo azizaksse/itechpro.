@@ -1,0 +1,137 @@
+import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ShoppingCart, Heart, Star, Truck, Shield, ArrowRight, Check } from "lucide-react";
+import Layout from "@/components/Layout";
+import ProductCard from "@/components/ProductCard";
+import { Button } from "@/components/ui/button";
+import { products, formatPrice } from "@/data/products";
+
+const ProductDetail = () => {
+  const { id } = useParams();
+  const product = products.find((p) => p.id === id);
+
+  if (!product) {
+    return (
+      <Layout>
+        <div className="container py-20 text-center">
+          <h1 className="text-2xl font-bold mb-4">المنتج غير موجود</h1>
+          <Button asChild variant="hero"><Link to="/products">العودة للمنتجات</Link></Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+
+  return (
+    <Layout>
+      <div className="container py-8">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+          <Link to="/" className="hover:text-primary transition-colors">الرئيسية</Link>
+          <ArrowRight size={12} className="rotate-180" />
+          <Link to="/products" className="hover:text-primary transition-colors">المنتجات</Link>
+          <ArrowRight size={12} className="rotate-180" />
+          <span className="text-foreground">{product.nameAr}</span>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          {/* Image */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-2xl overflow-hidden aspect-square">
+            <img src={product.image} alt={product.nameAr} className="w-full h-full object-cover" />
+          </motion.div>
+
+          {/* Info */}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-muted-foreground">{product.brand}</span>
+              {product.isNew && <span className="px-2 py-0.5 rounded bg-primary text-primary-foreground text-[10px] font-bold">جديد</span>}
+              {product.isPromo && <span className="px-2 py-0.5 rounded bg-accent text-accent-foreground text-[10px] font-bold">عرض</span>}
+            </div>
+
+            <h1 className="text-2xl lg:text-3xl font-bold mb-4">{product.nameAr}</h1>
+
+            {/* Rating */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={14} className={i < Math.floor(product.rating) ? "fill-primary text-primary" : "text-muted-foreground"} />
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground">({product.reviews} تقييم)</span>
+            </div>
+
+            {/* Price */}
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-3xl font-bold text-primary">{formatPrice(product.price)}</span>
+              {product.oldPrice && <span className="text-lg text-muted-foreground line-through">{formatPrice(product.oldPrice)}</span>}
+            </div>
+
+            {/* Stock */}
+            <div className="flex items-center gap-2 mb-6">
+              {product.inStock ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-green-500 stock-pulse" />
+                  <span className="text-sm text-green-400 font-medium">متوفر في المخزون</span>
+                </>
+              ) : (
+                <span className="text-sm text-muted-foreground">غير متوفر</span>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mb-8">
+              <Button variant="hero" size="lg" className="flex-1 pulse-glow">
+                <ShoppingCart size={18} className="ml-2" /> أضف إلى السلة
+              </Button>
+              <Button variant="heroOutline" size="lg">
+                <Heart size={18} />
+              </Button>
+            </div>
+
+            {/* Perks */}
+            <div className="glass-card rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Truck size={16} className="text-primary" />
+                <span>توصيل سريع لجميع الولايات</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Shield size={16} className="text-primary" />
+                <span>ضمان على المنتج</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                <Check size={16} className="text-primary" />
+                <span>منتج أصلي 100%</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Specs Table - HUD Style */}
+        <div className="mb-16">
+          <h2 className="text-xl font-bold mb-4">المواصفات التقنية</h2>
+          <div className="glass-card rounded-xl overflow-hidden bg-grid">
+            {Object.entries(product.specs).map(([key, val], i) => (
+              <div key={key} className={`flex items-center justify-between p-4 ${i > 0 ? 'border-t border-secondary' : ''}`}>
+                <span className="text-sm text-muted-foreground">{key}</span>
+                <span className="text-sm font-medium font-mono">{val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Related */}
+        {related.length > 0 && (
+          <div>
+            <h2 className="text-xl font-bold mb-6">منتجات مشابهة</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {related.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            </div>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
+};
+
+export default ProductDetail;
