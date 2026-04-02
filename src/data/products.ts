@@ -178,7 +178,7 @@ export const products: Product[] = [
     oldPrice: 36900,
     category: "headsets",
     brand: "HyperX",
-    image: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71aSEMiA-kL._AC_SL1500_.jpg",
     specs: { "الاتصال": "لاسلكي 2.4GHz", "البطارية": "120 ساعة", "الميكروفون": "قابل للفصل", "الوزن": "298g" },
     inStock: true,
     isPromo: true,
