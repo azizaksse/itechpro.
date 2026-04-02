@@ -40,7 +40,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
                 <span className="px-2 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">{t("product.new")}</span>
               )}
               {product.isPromo && (
-                <span className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-[10px] font-bold">عرض</span>
+                <span className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-[10px] font-bold">{t("product.promo")}</span>
               )}
             </div>
             {/* Quick actions */}
