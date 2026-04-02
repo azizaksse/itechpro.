@@ -23,9 +23,9 @@ const features = [
 
 const Index = () => {
   const isMobile = useIsMobile();
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(4);
   const [visibleNewCount, setVisibleNewCount] = useState(6);
-  const [visiblePromoCount, setVisiblePromoCount] = useState(8);
+  const [visiblePromoCount, setVisiblePromoCount] = useState(4);
   const allNewProducts = products.filter((p) => p.isNew);
   const newProducts = allNewProducts.slice(0, visibleNewCount);
   const allPromoProducts = products.filter((p) => p.isPromo);
