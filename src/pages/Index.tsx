@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import Layout from "@/components/Layout";
 import FAQSection from "@/components/FAQSection";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
 
@@ -14,16 +15,12 @@ const categoryIcons: Record<string, any> = {
   Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, MonitorDot, Keyboard, Mouse: MouseIcon, Headphones: HeadphonesIcon, Cable, Video, MemoryStick: HardDrive,
 };
 
-const features = [
-  { icon: Truck, text: "توصيل سريع إلى جميع الولايات" },
-  { icon: Shield, text: "منتجات أصلية 100%" },
-  { icon: Headphones, text: "دعم تقني قبل وبعد الشراء" },
-  { icon: Award, text: "ضمان على المنتجات" },
-  { icon: BadgePercent, text: "أفضل أسعار في السوق" },
-];
+const featureKeys = ["feat.delivery", "feat.original", "feat.support", "feat.warranty", "feat.prices"];
+const featureIcons = [Truck, Shield, Headphones, Award, BadgePercent];
 
 const Index = () => {
   const isMobile = useIsMobile();
+  const { t } = useLanguage();
   const [visibleCount, setVisibleCount] = useState(4);
   const [visibleNewCount, setVisibleNewCount] = useState(6);
   const [visiblePromoCount, setVisiblePromoCount] = useState(4);
@@ -48,17 +45,17 @@ const Index = () => {
             className="flex-1 text-center lg:text-right"
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight mb-6" style={{ textWrap: 'balance' }}>
-              أفضل متجر لبيع الحواسيب وقطع الكمبيوتر في <span className="text-gradient">الجزائر</span>
+              {t("hero.title")} <span className="text-gradient">{t("hero.country")}</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
-              اكتشف أحدث الحواسيب وقطع الكمبيوتر الأصلية بأفضل الأسعار مع توصيل سريع لكل الولايات.
+              {t("hero.subtitle")}
             </p>
             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
               <Button variant="hero" size="lg" asChild className="pulse-glow">
-                <Link to="/products">تصفح المنتجات</Link>
+                <Link to="/products">{t("hero.browse")}</Link>
               </Button>
               <Button variant="heroOutline" size="lg" asChild>
-                <Link to="/pc-builder">ابنِ حاسوبك الآن</Link>
+                <Link to="/pc-builder">{t("hero.build")}</Link>
               </Button>
             </div>
           </motion.div>
@@ -76,37 +73,41 @@ const Index = () => {
 
       {/* Features */}
       <section className="py-12 border-y border-secondary overflow-hidden">
-        {/* Desktop: grid */}
         <div className="container hidden sm:block">
           <div className="grid sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {features.map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.05 }}
-                className="flex flex-col items-center text-center gap-2 p-4"
-              >
-                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <f.icon size={18} className="text-primary" />
-                </div>
-                <span className="text-xs font-medium text-muted-foreground">{f.text}</span>
-              </motion.div>
-            ))}
+            {featureKeys.map((key, i) => {
+              const Icon = featureIcons[i];
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05 }}
+                  className="flex flex-col items-center text-center gap-2 p-4"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon size={18} className="text-primary" />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground">{t(key)}</span>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
-        {/* Mobile: auto-scrolling marquee */}
         <div className="sm:hidden overflow-hidden py-3" style={{ direction: 'ltr' }}>
           <div className="flex w-max animate-marquee-ltr gap-6">
-            {[...features, ...features].map((f, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 shrink-0" style={{ direction: 'rtl' }}>
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <f.icon size={16} className="text-primary" />
+            {[...featureKeys, ...featureKeys].map((key, i) => {
+              const Icon = featureIcons[i % featureKeys.length];
+              return (
+                <div key={i} className="flex items-center gap-2 px-3 shrink-0" style={{ direction: 'rtl' }}>
+                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <Icon size={16} className="text-primary" />
+                  </div>
+                  <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{t(key)}</span>
                 </div>
-                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{f.text}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -115,8 +116,8 @@ const Index = () => {
       <section className="py-16">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">منتجات جديدة</h2>
-            <Link to="/products" className="text-sm text-primary hover:underline">عرض الكل</Link>
+            <h2 className="text-2xl font-bold">{t("section.newProducts")}</h2>
+            <Link to="/products" className="text-sm text-primary hover:underline">{t("section.viewAll")}</Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {newProducts.map((p, i) => (
@@ -126,7 +127,7 @@ const Index = () => {
           {visibleNewCount < allNewProducts.length && (
             <div className="text-center mt-8">
               <Button variant="outline" size="lg" onClick={() => setVisibleNewCount((c) => Math.min(c + 6, allNewProducts.length))}>
-                تحميل المزيد ({allNewProducts.length - visibleNewCount} متبقي)
+                {t("section.loadMore")} ({allNewProducts.length - visibleNewCount} {t("section.remaining")})
               </Button>
             </div>
           )}
@@ -136,7 +137,7 @@ const Index = () => {
       {/* Categories */}
       <section className="py-16 bg-card">
         <div className="container">
-          <h2 className="text-2xl font-bold mb-8 text-center">الأصناف</h2>
+          <h2 className="text-2xl font-bold mb-8 text-center">{t("section.categories")}</h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {categories.map((cat, i) => {
               const Icon = categoryIcons[cat.icon] || Monitor;
@@ -168,8 +169,8 @@ const Index = () => {
       <section className="py-16">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">جميع <span className="text-primary">المنتجات</span></h2>
-            <Link to="/products" className="text-sm text-primary hover:underline">عرض الكل</Link>
+            <h2 className="text-2xl font-bold">{t("section.allProducts")} <span className="text-primary">{t("section.allProductsSuffix")}</span></h2>
+            <Link to="/products" className="text-sm text-primary hover:underline">{t("section.viewAll")}</Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {visibleProducts.map((p, i) => (
@@ -179,7 +180,7 @@ const Index = () => {
           {visibleCount < products.length && (
             <div className="text-center mt-8">
               <Button variant="outline" size="lg" onClick={() => setVisibleCount((c) => Math.min(c + 8, products.length))}>
-                تحميل المزيد ({products.length - visibleCount} متبقي)
+                {t("section.loadMore")} ({products.length - visibleCount} {t("section.remaining")})
               </Button>
             </div>
           )}
@@ -190,8 +191,8 @@ const Index = () => {
       <section className="py-16">
         <div className="container">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">عروض <span className="text-primary">خاصة</span></h2>
-            <Link to="/products?promo=true" className="text-sm text-primary hover:underline">عرض الكل</Link>
+            <h2 className="text-2xl font-bold">{t("section.specialOffers")} <span className="text-primary">{t("section.specialOffersSuffix")}</span></h2>
+            <Link to="/products?promo=true" className="text-sm text-primary hover:underline">{t("section.viewAll")}</Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {promoProducts.map((p, i) => (
@@ -201,7 +202,7 @@ const Index = () => {
           {isMobile && visiblePromoCount < allPromoProducts.length && (
             <div className="text-center mt-8">
               <Button variant="outline" size="lg" onClick={() => setVisiblePromoCount((c) => Math.min(c + 4, allPromoProducts.length))}>
-                تحميل المزيد ({allPromoProducts.length - visiblePromoCount} متبقي)
+                {t("section.loadMore")} ({allPromoProducts.length - visiblePromoCount} {t("section.remaining")})
               </Button>
             </div>
           )}
@@ -215,10 +216,10 @@ const Index = () => {
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 100%, hsl(0 72% 15% / 0.3), transparent 70%)' }} />
         <div className="container relative z-10 text-center">
-          <h2 className="text-3xl font-bold mb-4">جاهز لبناء حاسوبك المثالي؟</h2>
-          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">اختر القطع المتوافقة وابدأ ببناء حاسوب أحلامك بأفضل الأسعار</p>
+          <h2 className="text-3xl font-bold mb-4">{t("cta.title")}</h2>
+          <p className="text-muted-foreground mb-8 max-w-lg mx-auto">{t("cta.subtitle")}</p>
           <Button variant="hero" size="lg" asChild className="pulse-glow">
-            <Link to="/pc-builder">ابدأ البناء الآن</Link>
+            <Link to="/pc-builder">{t("cta.buildNow")}</Link>
           </Button>
         </div>
       </section>
