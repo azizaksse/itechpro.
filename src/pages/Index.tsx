@@ -148,6 +148,21 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Top Rated */}
+      <section className="py-16">
+        <div className="container">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold">الأكثر <span className="text-primary">تقييماً</span></h2>
+            <Link to="/products" className="text-sm text-primary hover:underline">عرض الكل</Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {topRated.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Promo Products */}
       <section className="py-16">
         <div className="container">
