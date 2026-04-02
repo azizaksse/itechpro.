@@ -247,7 +247,7 @@ export const products: Product[] = [
     price: 104900,
     category: "gaming-pcs",
     brand: "ITECHPRO",
-    image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/81Xr+CaSpQL._AC_SL1500_.jpg",
     specs: { "المعالج": "R7 5700G", "الرام": "16GB DDR4", "التخزين": "512GB NVMe", "النظام": "Windows 11" },
     inStock: true,
     rating: 4.7,
