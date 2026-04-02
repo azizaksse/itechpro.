@@ -305,7 +305,7 @@ export const products: Product[] = [
     oldPrice: 299000,
     category: "graphics-cards",
     brand: "MSI",
-    image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/81bHOHaNJXL._AC_SL1500_.jpg",
     specs: { "الذاكرة": "16GB GDDR7", "التردد": "2452 MHz", "الطاقة": "300W", "المنفذ": "PCIe 5.0" },
     inStock: true,
     isPromo: true,
