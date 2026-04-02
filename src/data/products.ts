@@ -320,7 +320,7 @@ export const products: Product[] = [
     oldPrice: 199000,
     category: "graphics-cards",
     brand: "ASUS",
-    image: "https://images.unsplash.com/photo-1555618254-5e75e8eef209?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71qGzN9IqIL._AC_SL1500_.jpg",
     specs: { "الذاكرة": "12GB GDDR7", "التردد": "2512 MHz", "الطاقة": "250W", "المنفذ": "PCIe 5.0" },
     inStock: true,
     isPromo: true,
