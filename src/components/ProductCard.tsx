@@ -37,7 +37,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
             {/* Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1.5">
               {product.isNew && (
-                <span className="px-2 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">جديد</span>
+                <span className="px-2 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">{t("product.new")}</span>
               )}
               {product.isPromo && (
                 <span className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-[10px] font-bold">عرض</span>
