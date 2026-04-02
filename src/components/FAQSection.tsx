@@ -2,20 +2,14 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Truck, Clock, ShieldCheck, Award, Banknote, Cpu, Package, Headphones, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const faqs = [
-  { icon: Truck, q: "هل توفرون التوصيل لجميع ولايات الجزائر؟", a: "نعم، نوصل إلى جميع الـ 58 ولاية عبر شركاء توصيل موثوقين لضمان وصول طلبك بأمان." },
-  { icon: Clock, q: "كم تستغرق مدة التوصيل؟", a: "عادة ما يستغرق التوصيل بين 24 إلى 72 ساعة حسب الولاية والمنطقة." },
-  { icon: ShieldCheck, q: "هل الحواسيب والقطع أصلية؟", a: "نعم، جميع المنتجات أصلية 100% ومستوردة من علامات تجارية وموردين معتمدين." },
-  { icon: Award, q: "هل المنتجات تأتي مع ضمان؟", a: "نعم، جميع المنتجات تشمل ضماناً. مدة الضمان تختلف حسب نوع المنتج والعلامة التجارية." },
-  { icon: Banknote, q: "هل يمكنني الدفع عند الاستلام؟", a: "نعم، خدمة الدفع عند الاستلام متوفرة في معظم ولايات الجزائر." },
-  { icon: Cpu, q: "هل يمكنني طلب تجميع حاسوب مخصص؟", a: "نعم، يمكن للعملاء اختيار القطع وطلب تجميع حاسوب ألعاب أو حاسوب احترافي حسب الطلب." },
-  { icon: Package, q: "ماذا لو وصل المنتج تالفاً؟", a: "تواصل معنا فوراً خلال 24 ساعة وسنساعدك في الاستبدال أو الإرجاع." },
-  { icon: Headphones, q: "هل توفرون دعماً تقنياً؟", a: "نعم، فريقنا يساعد العملاء في اختيار القطع المناسبة ويوفر دعماً تقنياً بعد البيع." },
-];
+const faqIcons = [Truck, Clock, ShieldCheck, Award, Banknote, Cpu, Package, Headphones];
+const faqKeys = [1, 2, 3, 4, 5, 6, 7, 8];
 
 const FAQSection = ({ showCta = true }: { showCta?: boolean }) => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const { t } = useLanguage();
 
   return (
     <section className="py-16 sm:py-20">
@@ -29,21 +23,21 @@ const FAQSection = ({ showCta = true }: { showCta?: boolean }) => {
           className="text-center mb-12"
         >
           <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4">
-            الأسئلة الشائعة
+            {t("faq.badge")}
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-            الأسئلة <span className="text-primary">الشائعة</span>
+            {t("faq.title")} <span className="text-primary">{t("faq.titleHighlight")}</span>
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-            اعثر على إجابات سريعة حول الطلبات، التوصيل، الضمان، الدفع، ومعلومات المنتجات.
+            {t("faq.subtitle")}
           </p>
         </motion.div>
 
         {/* FAQ Items */}
         <div className="space-y-3">
-          {faqs.map((faq, i) => {
+          {faqKeys.map((num, i) => {
             const isOpen = openIndex === i;
-            const Icon = faq.icon;
+            const Icon = faqIcons[i];
             return (
               <motion.div
                 key={i}
@@ -69,7 +63,7 @@ const FAQSection = ({ showCta = true }: { showCta?: boolean }) => {
                     <Icon size={18} />
                   </div>
                   <span className={`flex-1 font-medium text-sm sm:text-base text-right transition-colors duration-200 ${isOpen ? "text-foreground" : "text-foreground/80"}`}>
-                    {faq.q}
+                    {t(`faq.q${num}`)}
                   </span>
                   <ChevronDown
                     size={18}
@@ -86,7 +80,7 @@ const FAQSection = ({ showCta = true }: { showCta?: boolean }) => {
                       className="overflow-hidden"
                     >
                       <div className="px-4 sm:px-5 pb-4 sm:pb-5 pr-16 sm:pr-[4.5rem]">
-                        <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{t(`faq.a${num}`)}</p>
                       </div>
                     </motion.div>
                   )}
@@ -109,14 +103,14 @@ const FAQSection = ({ showCta = true }: { showCta?: boolean }) => {
               <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 100%, hsl(0 72% 15% / 0.2), transparent 70%)" }} />
               <div className="relative z-10">
                 <MessageCircle size={32} className="text-primary mx-auto mb-4 opacity-80" />
-                <h3 className="text-xl font-bold mb-2">لا تزال لديك أسئلة؟</h3>
+                <h3 className="text-xl font-bold mb-2">{t("faq.ctaTitle")}</h3>
                 <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                  فريقنا جاهز لمساعدتك. تواصل معنا عبر واتساب للحصول على إجابات فورية.
+                  {t("faq.ctaSubtitle")}
                 </p>
                 <Button variant="hero" size="lg" asChild className="pulse-glow">
                   <a href="https://wa.me/213000000000" target="_blank" rel="noopener noreferrer">
                     <MessageCircle size={18} />
-                    تواصل معنا عبر واتساب
+                    {t("faq.ctaButton")}
                   </a>
                 </Button>
               </div>

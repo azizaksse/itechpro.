@@ -1,5 +1,6 @@
-import { Minus, Plus, Trash2, X, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
 
 const CartDrawer = () => {
   const { items, isOpen, setIsOpen, removeItem, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
+  const { t } = useLanguage();
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -19,14 +21,14 @@ const CartDrawer = () => {
           <SheetTitle className="flex items-center justify-between">
             <span className="flex items-center gap-2">
               <ShoppingBag size={20} className="text-primary" />
-              سلة التسوق ({totalItems})
+              {t("cart.title")} ({totalItems})
             </span>
             {items.length > 0 && (
               <button
                 onClick={clearCart}
                 className="text-xs text-muted-foreground hover:text-destructive transition-colors"
               >
-                إفراغ السلة
+                {t("cart.clear")}
               </button>
             )}
           </SheetTitle>
@@ -35,7 +37,7 @@ const CartDrawer = () => {
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-muted-foreground">
             <ShoppingBag size={48} className="opacity-30" />
-            <p className="text-sm">سلة التسوق فارغة</p>
+            <p className="text-sm">{t("cart.empty")}</p>
           </div>
         ) : (
           <>
@@ -87,13 +89,13 @@ const CartDrawer = () => {
 
             <div className="border-t border-secondary p-4 space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">المجموع</span>
+                <span className="text-muted-foreground">{t("cart.total")}</span>
                 <span className="text-lg font-bold text-primary">
                   {formatPrice(totalPrice)}
                 </span>
               </div>
               <Button variant="hero" size="lg" className="w-full pulse-glow">
-                إتمام الطلب
+                {t("cart.checkout")}
               </Button>
             </div>
           </>

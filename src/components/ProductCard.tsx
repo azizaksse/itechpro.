@@ -3,16 +3,18 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Product, formatPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
 const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
   const { addItem } = useCart();
+  const { t } = useLanguage();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
-    toast.success(`تمت إضافة "${product.nameAr}" إلى السلة`);
+    toast.success(t("cart.added"));
   };
 
   return (
@@ -35,10 +37,10 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
             {/* Badges */}
             <div className="absolute top-3 right-3 flex flex-col gap-1.5">
               {product.isNew && (
-                <span className="px-2 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">جديد</span>
+                <span className="px-2 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">{t("product.new")}</span>
               )}
               {product.isPromo && (
-                <span className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-[10px] font-bold">عرض</span>
+                <span className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-[10px] font-bold">{t("product.promo")}</span>
               )}
             </div>
             {/* Quick actions */}
@@ -54,7 +56,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
             {product.inStock && (
               <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 stock-pulse" />
-                <span className="text-[10px] text-green-400 font-medium">متوفر</span>
+                <span className="text-[10px] text-green-400 font-medium">{t("product.inStock")}</span>
               </div>
             )}
           </div>
