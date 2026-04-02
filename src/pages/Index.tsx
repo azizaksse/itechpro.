@@ -22,7 +22,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const { t } = useLanguage();
   const [visibleCount, setVisibleCount] = useState(4);
-  const [visibleNewCount, setVisibleNewCount] = useState(6);
+  const [visibleNewCount, setVisibleNewCount] = useState(4);
   const [visiblePromoCount, setVisiblePromoCount] = useState(4);
   const allNewProducts = products.filter((p) => p.isNew);
   const newProducts = allNewProducts.slice(0, visibleNewCount);
