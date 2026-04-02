@@ -220,7 +220,7 @@ export const products: Product[] = [
     price: 5900,
     category: "cooling",
     brand: "Cooler Master",
-    image: "https://images.unsplash.com/photo-1592155931584-901ac15763e3?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71E5yT4tDTL._AC_SL1500_.jpg",
     specs: { "النوع": "مبرد هوائي", "المروحة": "120mm ARGB", "TDP": "159W", "التوافق": "LGA1700/AM5" },
     inStock: true,
     isNew: true,
