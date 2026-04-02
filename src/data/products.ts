@@ -49,7 +49,7 @@ export const products: Product[] = [
     price: 185000,
     category: "graphics-cards",
     brand: "NVIDIA",
-    image: "https://images.unsplash.com/photo-1591488320449-011701bb6704?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/81mKzEBRagL._AC_SL1500_.jpg",
     specs: { "الذاكرة": "12GB GDDR7", "التردد": "2512 MHz", "الطاقة": "250W", "المنفذ": "PCIe 5.0" },
     inStock: true,
     isNew: true,
