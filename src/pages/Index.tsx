@@ -21,8 +21,10 @@ const features = [
 ];
 
 const Index = () => {
+  const [visibleCount, setVisibleCount] = useState(8);
   const newProducts = products.filter((p) => p.isNew).slice(0, 8);
   const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
+  const visibleProducts = products.slice(0, visibleCount);
 
   return (
     <Layout>
