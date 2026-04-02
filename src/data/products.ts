@@ -261,7 +261,7 @@ export const products: Product[] = [
     oldPrice: 61900,
     category: "laptops",
     brand: "DELL",
-    image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71jG+e7roXL._AC_SL1500_.jpg",
     specs: { "المعالج": "i5-10310U", "الرام": "8GB", "التخزين": "256GB SSD", "الشاشة": '14" FHD' },
     inStock: true,
     isPromo: true,
