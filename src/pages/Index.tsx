@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
 import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
