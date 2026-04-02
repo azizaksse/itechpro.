@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
 import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,12 +22,15 @@ const features = [
 ];
 
 const Index = () => {
-  const [visibleCount, setVisibleCount] = useState(8);
+  const isMobile = useIsMobile();
+  const [visibleCount, setVisibleCount] = useState(4);
   const [visibleNewCount, setVisibleNewCount] = useState(6);
+  const [visiblePromoCount, setVisiblePromoCount] = useState(4);
   const allNewProducts = products.filter((p) => p.isNew);
   const newProducts = allNewProducts.slice(0, visibleNewCount);
-  const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
-  const visibleProducts = products.slice(0, visibleCount);
+  const allPromoProducts = products.filter((p) => p.isPromo);
+  const promoProducts = allPromoProducts.slice(0, isMobile ? visiblePromoCount : allPromoProducts.length);
+  const visibleProducts = products.slice(0, isMobile ? visibleCount : Math.max(visibleCount, products.length));
 
   return (
     <Layout>
@@ -193,6 +197,13 @@ const Index = () => {
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
+          {isMobile && visiblePromoCount < allPromoProducts.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" size="lg" onClick={() => setVisiblePromoCount((c) => Math.min(c + 4, allPromoProducts.length))}>
+                تحميل المزيد ({allPromoProducts.length - visiblePromoCount} متبقي)
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
