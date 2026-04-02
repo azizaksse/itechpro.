@@ -22,7 +22,9 @@ const features = [
 
 const Index = () => {
   const [visibleCount, setVisibleCount] = useState(8);
-  const newProducts = products.filter((p) => p.isNew).slice(0, 8);
+  const [visibleNewCount, setVisibleNewCount] = useState(6);
+  const allNewProducts = products.filter((p) => p.isNew);
+  const newProducts = allNewProducts.slice(0, visibleNewCount);
   const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
   const visibleProducts = products.slice(0, visibleCount);
 
@@ -116,6 +118,13 @@ const Index = () => {
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
+          {visibleNewCount < allNewProducts.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" size="lg" onClick={() => setVisibleNewCount((c) => Math.min(c + 6, allNewProducts.length))}>
+                تحميل المزيد ({allNewProducts.length - visibleNewCount} متبقي)
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
