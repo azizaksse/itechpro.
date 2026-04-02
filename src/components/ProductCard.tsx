@@ -56,7 +56,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
             {product.inStock && (
               <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-500 stock-pulse" />
-                <span className="text-[10px] text-green-400 font-medium">متوفر</span>
+                <span className="text-[10px] text-green-400 font-medium">{t("product.inStock")}</span>
               </div>
             )}
           </div>
