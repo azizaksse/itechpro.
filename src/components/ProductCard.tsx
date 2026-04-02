@@ -46,7 +46,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
               <button className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
                 <Heart size={14} />
               </button>
-              <button className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
+              <button onClick={handleAddToCart} className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
                 <ShoppingCart size={14} />
               </button>
             </div>
