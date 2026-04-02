@@ -136,7 +136,7 @@ export const products: Product[] = [
     price: 6900,
     category: "storage",
     brand: "Somnambulist",
-    image: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71mBXx1Y-fL._AC_SL1500_.jpg",
     specs: { "السعة": "256GB", "النوع": "SATA III", "سرعة القراءة": "550 MB/s", "سرعة الكتابة": "450 MB/s" },
     inStock: true,
     rating: 4.3,
