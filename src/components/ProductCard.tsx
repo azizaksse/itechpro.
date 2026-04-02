@@ -3,6 +3,7 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Product, formatPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
 const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
