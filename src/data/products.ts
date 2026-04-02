@@ -108,7 +108,7 @@ export const products: Product[] = [
     oldPrice: 50000,
     category: "processors",
     brand: "AMD",
-    image: "https://images.unsplash.com/photo-1555618568-bfe05e4b4c8e?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/61IIvJyhgtL._AC_SL1200_.jpg",
     specs: { "الأنوية": "6 أنوية / 12 خيط", "التردد": "4.7 GHz - 5.3 GHz", "المقبس": "AM5", "الطاقة": "105W" },
     inStock: true,
     isPromo: true,
