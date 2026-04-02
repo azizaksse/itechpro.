@@ -234,7 +234,7 @@ export const products: Product[] = [
     price: 95900,
     category: "gaming-pcs",
     brand: "ITECHPRO",
-    image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71LJ6JFaFVL._AC_SL1500_.jpg",
     specs: { "المعالج": "R5 5600GT", "الرام": "16GB DDR4", "التخزين": "512GB SSD", "النظام": "Windows 11" },
     inStock: true,
     rating: 4.6,
