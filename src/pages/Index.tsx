@@ -197,6 +197,13 @@ const Index = () => {
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
+          {isMobile && visiblePromoCount < allPromoProducts.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" size="lg" onClick={() => setVisiblePromoCount((c) => Math.min(c + 4, allPromoProducts.length))}>
+                تحميل المزيد ({allPromoProducts.length - visiblePromoCount} متبقي)
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
