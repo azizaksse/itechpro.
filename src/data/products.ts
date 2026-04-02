@@ -149,7 +149,7 @@ export const products: Product[] = [
     price: 13000,
     category: "storage",
     brand: "Western Digital",
-    image: "https://images.unsplash.com/photo-1531492746076-161ca9bcad58?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71OloanpMQL._AC_SL1500_.jpg",
     specs: { "السعة": "1TB", "السرعة": "7200 RPM", "الذاكرة المؤقتة": "64MB", "المنفذ": "SATA III" },
     inStock: true,
     isNew: true,
