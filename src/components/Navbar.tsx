@@ -18,6 +18,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
+  const { totalItems, setIsOpen } = useCart();
 
   return (
     <nav className="fixed top-0 right-0 left-0 z-50 glass-card border-b-0" style={{ borderBottom: '1px solid hsla(0,0%,100%,0.06)' }}>
