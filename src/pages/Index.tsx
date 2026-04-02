@@ -22,12 +22,15 @@ const features = [
 ];
 
 const Index = () => {
+  const isMobile = useIsMobile();
   const [visibleCount, setVisibleCount] = useState(8);
   const [visibleNewCount, setVisibleNewCount] = useState(6);
+  const [visiblePromoCount, setVisiblePromoCount] = useState(8);
   const allNewProducts = products.filter((p) => p.isNew);
   const newProducts = allNewProducts.slice(0, visibleNewCount);
-  const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
-  const visibleProducts = products.slice(0, visibleCount);
+  const allPromoProducts = products.filter((p) => p.isPromo);
+  const promoProducts = allPromoProducts.slice(0, isMobile ? visiblePromoCount : allPromoProducts.length);
+  const visibleProducts = products.slice(0, isMobile ? visibleCount : Math.max(visibleCount, products.length));
 
   return (
     <Layout>
