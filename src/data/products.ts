@@ -290,7 +290,7 @@ export const products: Product[] = [
     oldPrice: 31900,
     category: "cases",
     brand: "Magma",
-    image: "https://images.unsplash.com/photo-1593640408182-31c70c8268f5?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71xOn8UFDSL._AC_SL1500_.jpg",
     specs: { "الحجم": "Mid Tower", "الزجاج": "مزدوج", "المروحة": "4x ARGB", "المنافذ": "USB-C" },
     inStock: true,
     isPromo: true,
