@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot } from "lucide-react";
@@ -20,8 +21,10 @@ const features = [
 ];
 
 const Index = () => {
+  const [visibleCount, setVisibleCount] = useState(8);
   const newProducts = products.filter((p) => p.isNew).slice(0, 8);
   const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
+  const visibleProducts = products.slice(0, visibleCount);
 
   return (
     <Layout>
@@ -155,10 +158,17 @@ const Index = () => {
             <Link to="/products" className="text-sm text-primary hover:underline">عرض الكل</Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {products.map((p, i) => (
+            {visibleProducts.map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
+          {visibleCount < products.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" size="lg" onClick={() => setVisibleCount((c) => Math.min(c + 8, products.length))}>
+                تحميل المزيد ({products.length - visibleCount} متبقي)
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
