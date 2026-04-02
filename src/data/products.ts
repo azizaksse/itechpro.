@@ -275,7 +275,7 @@ export const products: Product[] = [
     price: 8900,
     category: "cooling",
     brand: "GAMDIAS",
-    image: "https://images.unsplash.com/photo-1587202372616-b43abea06c2a?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71Bsz0iBy-L._AC_SL1500_.jpg",
     specs: { "العدد": "3 مراوح", "الحجم": "120mm", "الإضاءة": "ARGB", "السرعة": "1200 RPM" },
     inStock: true,
     isNew: true,
