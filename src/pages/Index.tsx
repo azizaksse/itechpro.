@@ -22,7 +22,9 @@ const features = [
 
 const Index = () => {
   const [visibleCount, setVisibleCount] = useState(8);
-  const newProducts = products.filter((p) => p.isNew).slice(0, 8);
+  const [visibleNewCount, setVisibleNewCount] = useState(6);
+  const allNewProducts = products.filter((p) => p.isNew);
+  const newProducts = allNewProducts.slice(0, visibleNewCount);
   const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
   const visibleProducts = products.slice(0, visibleCount);
 
