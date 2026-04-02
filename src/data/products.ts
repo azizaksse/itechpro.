@@ -78,7 +78,7 @@ export const products: Product[] = [
     price: 101900,
     category: "graphics-cards",
     brand: "NVIDIA",
-    image: "https://images.unsplash.com/photo-1555618254-5e75e8eef209?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71MnSTnkPkL._AC_SL1500_.jpg",
     specs: { "الذاكرة": "8GB GDDR7", "التردد": "2302 MHz", "الطاقة": "150W", "المنفذ": "PCIe 5.0" },
     inStock: true,
     isNew: true,
