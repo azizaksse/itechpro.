@@ -208,6 +208,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* FAQ */}
+      <FAQSection />
+
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 100%, hsl(0 72% 15% / 0.3), transparent 70%)' }} />
