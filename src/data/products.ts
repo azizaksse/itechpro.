@@ -64,7 +64,7 @@ export const products: Product[] = [
     oldPrice: 325000,
     category: "graphics-cards",
     brand: "ASUS",
-    image: "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/81mGBaJFJEL._AC_SL1500_.jpg",
     specs: { "الذاكرة": "16GB GDDR7", "التردد": "2452 MHz", "الطاقة": "300W", "المنفذ": "PCIe 5.0" },
     inStock: true,
     isPromo: true,
