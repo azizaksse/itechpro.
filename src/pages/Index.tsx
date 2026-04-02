@@ -139,7 +139,7 @@ const Index = () => {
         <div className="container">
           <h2 className="text-2xl font-bold mb-8 text-center">{t("section.categories")}</h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            {categories.map((cat, i) => {
+            {categories.filter((cat) => !isMobile || cat.id !== "streaming").map((cat, i) => {
               const Icon = categoryIcons[cat.icon] || Monitor;
               return (
                 <motion.div
