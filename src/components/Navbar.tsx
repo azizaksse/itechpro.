@@ -3,22 +3,25 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingCart, Heart, User, Menu, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import logo from "@/assets/logo.png";
-
-const navLinks = [
-  { to: "/", label: "الرئيسية" },
-  { to: "/products", label: "المنتجات" },
-  { to: "/pc-builder", label: "ابنِ حاسوبك" },
-  { to: "/about", label: "من نحن" },
-  { to: "/contact", label: "اتصل بنا" },
-  { to: "/faq", label: "الأسئلة الشائعة" },
-];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
   const { totalItems, setIsOpen } = useCart();
+  const { t } = useLanguage();
+
+  const navLinks = [
+    { to: "/", label: t("nav.home") },
+    { to: "/products", label: t("nav.products") },
+    { to: "/pc-builder", label: t("nav.pcBuilder") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/contact", label: t("nav.contact") },
+    { to: "/faq", label: t("nav.faq") },
+  ];
 
   return (
     <nav className="fixed top-0 right-0 left-0 z-50 glass-card border-b-0" style={{ borderBottom: '1px solid hsla(0,0%,100%,0.06)' }}>
@@ -47,7 +50,7 @@ const Navbar = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Search */}
           <AnimatePresence>
             {searchOpen && (
@@ -59,7 +62,7 @@ const Navbar = () => {
               >
                 <input
                   autoFocus
-                  placeholder="ابحث عن منتج..."
+                  placeholder={t("nav.search")}
                   className="w-full h-9 px-3 rounded-md bg-secondary text-foreground text-sm placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30"
                 />
               </motion.div>
@@ -68,6 +71,7 @@ const Navbar = () => {
           <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             <Search size={18} />
           </button>
+          <LanguageSwitcher />
           <button className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors relative">
             <Heart size={18} />
           </button>
