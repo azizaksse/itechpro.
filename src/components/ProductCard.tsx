@@ -6,6 +6,15 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
 const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
+  const { addItem } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product);
+    toast.success(`تمت إضافة "${product.nameAr}" إلى السلة`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
