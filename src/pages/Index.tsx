@@ -22,6 +22,7 @@ const features = [
 const Index = () => {
   const newProducts = products.filter((p) => p.isNew).slice(0, 8);
   const promoProducts = products.filter((p) => p.isPromo).slice(0, 8);
+  const topRated = [...products].sort((a, b) => b.rating - a.rating).slice(0, 8);
 
   return (
     <Layout>
