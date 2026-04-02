@@ -122,7 +122,7 @@ export const products: Product[] = [
     price: 25900,
     category: "ram",
     brand: "MAGMA",
-    image: "https://images.unsplash.com/photo-1562976540-1502c2145186?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71JUi+-6mXL._AC_SL1500_.jpg",
     specs: { "السعة": "16GB (2x8GB)", "التردد": "3200 MHz", "النوع": "DDR4", "الجهد": "1.35V" },
     inStock: true,
     isNew: true,
