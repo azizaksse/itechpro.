@@ -8,12 +8,13 @@ import { toast } from "sonner";
 
 const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
   const { addItem } = useCart();
+  const { t } = useLanguage();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
-    toast.success(`تمت إضافة "${product.nameAr}" إلى السلة`);
+    toast.success(t("cart.added"));
   };
 
   return (
