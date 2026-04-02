@@ -2,8 +2,19 @@ import { motion } from "framer-motion";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Product, formatPrice } from "@/data/products";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
+  const { addItem } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product);
+    toast.success(`تمت إضافة "${product.nameAr}" إلى السلة`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -35,7 +46,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
               <button className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
                 <Heart size={14} />
               </button>
-              <button className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
+              <button onClick={handleAddToCart} className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary transition-colors">
                 <ShoppingCart size={14} />
               </button>
             </div>
