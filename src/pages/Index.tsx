@@ -118,6 +118,13 @@ const Index = () => {
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
+          {visibleNewCount < allNewProducts.length && (
+            <div className="text-center mt-8">
+              <Button variant="outline" size="lg" onClick={() => setVisibleNewCount((c) => Math.min(c + 6, allNewProducts.length))}>
+                تحميل المزيد ({allNewProducts.length - visibleNewCount} متبقي)
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
