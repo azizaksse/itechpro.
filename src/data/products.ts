@@ -206,7 +206,7 @@ export const products: Product[] = [
     price: 23900,
     category: "power-supplies",
     brand: "GALAX",
-    image: "https://images.unsplash.com/photo-1600348712270-3d8f6f6eb01e?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71ym6fFNSSL._AC_SL1500_.jpg",
     specs: { "القدرة": "850W", "الشهادة": "80+ Gold", "النوع": "Full Modular", "المروحة": "140mm" },
     inStock: true,
     isNew: true,
