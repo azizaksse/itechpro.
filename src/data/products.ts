@@ -192,7 +192,7 @@ export const products: Product[] = [
     price: 13900,
     category: "cases",
     brand: "GAMDIAS",
-    image: "https://images.unsplash.com/photo-1587202372616-b43abea06c2a?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71d2dxiSBaL._AC_SL1500_.jpg",
     specs: { "الحجم": "Mid Tower", "المروحة": "3x ARGB", "اللوحات": "ATX/mATX/ITX", "المنافذ": "USB 3.0" },
     inStock: true,
     isNew: true,
