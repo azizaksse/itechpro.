@@ -6,6 +6,7 @@ import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Z
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import Layout from "@/components/Layout";
+import FAQSection from "@/components/FAQSection";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
 
@@ -206,6 +207,9 @@ const Index = () => {
           )}
         </div>
       </section>
+
+      {/* FAQ */}
+      <FAQSection />
 
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
