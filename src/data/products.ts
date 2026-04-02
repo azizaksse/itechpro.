@@ -163,7 +163,7 @@ export const products: Product[] = [
     price: 152900,
     category: "monitors",
     brand: "MSI",
-    image: "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/71XKsMT0yxL._AC_SL1500_.jpg",
     specs: { "الحجم": '27"', "الدقة": "2560x1440", "معدل التحديث": "240Hz", "نوع اللوحة": "QD-OLED" },
     inStock: true,
     isNew: true,
