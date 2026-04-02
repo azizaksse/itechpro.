@@ -93,7 +93,7 @@ export const products: Product[] = [
     oldPrice: 219000,
     category: "graphics-cards",
     brand: "ASROCK",
-    image: "https://images.unsplash.com/photo-1622957431534-33788ddd64f8?w=400&h=400&fit=crop",
+    image: "https://m.media-amazon.com/images/I/81paCzFSj4L._AC_SL1500_.jpg",
     specs: { "الذاكرة": "16GB GDDR6", "التردد": "2544 MHz", "الطاقة": "280W", "المنفذ": "PCIe 4.0" },
     inStock: true,
     isPromo: true,
