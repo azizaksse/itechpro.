@@ -10,7 +10,7 @@ import FAQSection from "@/components/FAQSection";
 import UsageCategorySection from "@/components/UsageCategorySection";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroParticles from "@/components/HeroParticles";
-import WaveDivider from "@/components/WaveDivider";
+import SectionDivider from "@/components/SectionDivider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
@@ -114,7 +114,7 @@ const Index = () => {
         </div>
       </section>
 
-      <WaveDivider variant="primary" />
+      <SectionDivider />
 
       {/* Features */}
       <section className="py-12 overflow-hidden">
@@ -160,7 +160,7 @@ const Index = () => {
         </div>
       </section>
 
-      <WaveDivider variant="subtle" />
+      <SectionDivider />
 
       {/* New Products */}
       <section className="py-16">
@@ -194,7 +194,7 @@ const Index = () => {
         </div>
       </section>
 
-      <WaveDivider variant="accent" flip />
+      <SectionDivider />
 
       {/* Categories */}
       <section className="py-16 bg-card">
@@ -229,7 +229,7 @@ const Index = () => {
         </div>
       </section>
 
-      <WaveDivider variant="subtle" />
+      <SectionDivider />
 
       {/* All Products */}
       <section className="py-16">
@@ -263,7 +263,7 @@ const Index = () => {
         </div>
       </section>
 
-      <WaveDivider variant="primary" flip />
+      <SectionDivider />
 
       {/* Promo Products */}
       <section className="py-16">
@@ -297,17 +297,17 @@ const Index = () => {
         </div>
       </section>
 
-      <WaveDivider variant="accent" />
+      <SectionDivider />
 
       {/* Usage Category */}
       <UsageCategorySection />
 
-      <WaveDivider variant="subtle" flip />
+      <SectionDivider />
 
       {/* FAQ */}
       <FAQSection />
 
-      <WaveDivider variant="primary" />
+      <SectionDivider />
 
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
