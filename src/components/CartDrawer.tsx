@@ -1,4 +1,4 @@
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { formatPrice } from "@/data/products";
@@ -16,9 +16,15 @@ const CartDrawer = () => {
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="left" className="w-full sm:max-w-md flex flex-col p-0">
+      <SheetContent side="left" className="w-full sm:max-w-md flex flex-col p-0 [&>button.absolute]:hidden">
         <SheetHeader className="p-4 border-b border-secondary">
           <SheetTitle className="flex items-center justify-between">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            >
+              <X size={18} />
+            </button>
             <span className="flex items-center gap-2">
               <ShoppingBag size={20} className="text-primary" />
               {t("cart.title")} ({totalItems})
