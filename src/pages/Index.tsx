@@ -194,6 +194,8 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="accent" flip />
+
       {/* Categories */}
       <section className="py-16 bg-card">
         <div className="container">
