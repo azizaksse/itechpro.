@@ -109,6 +109,78 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          brand: string
+          category: string
+          created_at: string
+          description: string | null
+          description_ar: string | null
+          id: string
+          image: string | null
+          images: string[] | null
+          in_stock: boolean
+          is_active: boolean
+          is_new: boolean
+          is_promo: boolean
+          name: string
+          name_ar: string
+          old_price: number | null
+          price: number
+          rating: number
+          reviews: number
+          specs: Json | null
+          stock_quantity: number
+          updated_at: string
+        }
+        Insert: {
+          brand?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          image?: string | null
+          images?: string[] | null
+          in_stock?: boolean
+          is_active?: boolean
+          is_new?: boolean
+          is_promo?: boolean
+          name: string
+          name_ar: string
+          old_price?: number | null
+          price?: number
+          rating?: number
+          reviews?: number
+          specs?: Json | null
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          description_ar?: string | null
+          id?: string
+          image?: string | null
+          images?: string[] | null
+          in_stock?: boolean
+          is_active?: boolean
+          is_new?: boolean
+          is_promo?: boolean
+          name?: string
+          name_ar?: string
+          old_price?: number | null
+          price?: number
+          rating?: number
+          reviews?: number
+          specs?: Json | null
+          stock_quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
