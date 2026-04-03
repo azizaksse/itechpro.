@@ -58,6 +58,16 @@
     scroll-behavior: smooth;
   }
 
+  @supports (scroll-behavior: smooth) {
+    html {
+      scroll-timeline: --page-scroll block;
+    }
+  }
+
+  body {
+    overscroll-behavior: none;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-variant-numeric: tabular-nums;
