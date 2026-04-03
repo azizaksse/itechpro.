@@ -4,6 +4,7 @@ import { X, Minus, Plus, Truck, Building2, MapPin, Phone, User, ChevronDown, Pac
 import { Button } from "@/components/ui/button";
 import { Product, formatPrice } from "@/data/products";
 import { wilayas, getWilayaByCode } from "@/data/algerianWilayas";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface CheckoutModalProps {
