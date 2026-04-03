@@ -10,7 +10,7 @@ import FAQSection from "@/components/FAQSection";
 import UsageCategorySection from "@/components/UsageCategorySection";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroParticles from "@/components/HeroParticles";
-import SectionDivider from "@/components/SectionDivider";
+
 import { useLanguage } from "@/contexts/LanguageContext";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
@@ -114,7 +114,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Features */}
       <section className="py-12 overflow-hidden">
@@ -160,7 +159,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* New Products */}
       <section className="py-16">
@@ -194,7 +192,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Categories */}
       <section className="py-16 bg-card">
@@ -229,7 +226,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* All Products */}
       <section className="py-16">
@@ -263,7 +259,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Promo Products */}
       <section className="py-16">
@@ -297,17 +292,15 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Usage Category */}
       <UsageCategorySection />
 
-      <SectionDivider />
 
       {/* FAQ */}
       <FAQSection />
 
-      <SectionDivider />
+      
 
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
