@@ -164,7 +164,7 @@ const AdminProducts = () => {
                         <div className="flex items-center gap-1">
                           <button
                             className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
-                            onClick={() => toast.info("قريبًا: تعديل المنتج")}
+                            onClick={() => setEditProduct(product)}
                           >
                             <Edit2 size={14} />
                           </button>
