@@ -10,6 +10,7 @@ import FAQSection from "@/components/FAQSection";
 import UsageCategorySection from "@/components/UsageCategorySection";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroParticles from "@/components/HeroParticles";
+import WaveDivider from "@/components/WaveDivider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
