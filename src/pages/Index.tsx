@@ -10,6 +10,7 @@ import FAQSection from "@/components/FAQSection";
 import UsageCategorySection from "@/components/UsageCategorySection";
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroParticles from "@/components/HeroParticles";
+import WaveDivider from "@/components/WaveDivider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
@@ -113,8 +114,10 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="primary" />
+
       {/* Features */}
-      <section className="py-12 border-y border-secondary overflow-hidden">
+      <section className="py-12 overflow-hidden">
         <div className="container hidden sm:block">
           <motion.div
             variants={staggerContainer}
@@ -157,6 +160,8 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="subtle" />
+
       {/* New Products */}
       <section className="py-16">
         <div className="container">
@@ -188,6 +193,8 @@ const Index = () => {
           )}
         </div>
       </section>
+
+      <WaveDivider variant="accent" flip />
 
       {/* Categories */}
       <section className="py-16 bg-card">
@@ -222,6 +229,8 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="subtle" />
+
       {/* All Products */}
       <section className="py-16">
         <div className="container">
@@ -253,6 +262,8 @@ const Index = () => {
           )}
         </div>
       </section>
+
+      <WaveDivider variant="primary" flip />
 
       {/* Promo Products */}
       <section className="py-16">
@@ -286,11 +297,17 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="accent" />
+
       {/* Usage Category */}
       <UsageCategorySection />
 
+      <WaveDivider variant="subtle" flip />
+
       {/* FAQ */}
       <FAQSection />
+
+      <WaveDivider variant="primary" />
 
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
