@@ -22,7 +22,11 @@ const ProductDetail = () => {
     );
   }
 
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const related = products.filter((p) => p.category === product.category && p.id !== product.id);
+  const [relatedPage, setRelatedPage] = useState(0);
+  const perPage = 3;
+  const totalPages = Math.ceil(related.length / perPage);
+  const visibleRelated = related.slice(relatedPage * perPage, relatedPage * perPage + perPage);
 
   return (
     <Layout>
