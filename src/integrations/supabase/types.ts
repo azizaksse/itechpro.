@@ -14,7 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          price: number
+          product_id: string
+          product_image: string | null
+          product_name: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          price: number
+          product_id: string
+          product_image?: string | null
+          product_name: string
+          quantity?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          price?: number
+          product_id?: string
+          product_image?: string | null
+          product_name?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          address: string
+          commune: string
+          created_at: string
+          customer_first_name: string
+          customer_last_name: string
+          delivery_fee: number
+          delivery_method: Database["public"]["Enums"]["delivery_method"]
+          id: string
+          office_name: string | null
+          phone: string
+          status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          total: number
+          updated_at: string
+          wilaya: string
+        }
+        Insert: {
+          address: string
+          commune: string
+          created_at?: string
+          customer_first_name: string
+          customer_last_name: string
+          delivery_fee?: number
+          delivery_method?: Database["public"]["Enums"]["delivery_method"]
+          id?: string
+          office_name?: string | null
+          phone: string
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          wilaya: string
+        }
+        Update: {
+          address?: string
+          commune?: string
+          created_at?: string
+          customer_first_name?: string
+          customer_last_name?: string
+          delivery_fee?: number
+          delivery_method?: Database["public"]["Enums"]["delivery_method"]
+          id?: string
+          office_name?: string | null
+          phone?: string
+          status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          total?: number
+          updated_at?: string
+          wilaya?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +117,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      delivery_method: "home" | "office"
+      order_status:
+        | "new"
+        | "confirmed"
+        | "preparing"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +251,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      delivery_method: ["home", "office"],
+      order_status: [
+        "new",
+        "confirmed",
+        "preparing",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
+    },
   },
 } as const
