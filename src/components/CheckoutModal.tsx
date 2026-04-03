@@ -96,15 +96,53 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
 
     setIsSubmitting(true);
 
-    // Simulate submit delay
-    await new Promise((r) => setTimeout(r, 1500));
+    try {
+      // Save order to database
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          customer_first_name: firstName,
+          customer_last_name: lastName,
+          phone,
+          wilaya: wilaya?.name || selectedWilaya,
+          commune: selectedCommune,
+          address,
+          delivery_method: deliveryMethod as any,
+          office_name: deliveryMethod === "office" ? officeName : null,
+          subtotal,
+          delivery_fee: deliveryFee,
+          total,
+        })
+        .select("id")
+        .single();
 
-    // Open WhatsApp
-    const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${generateWhatsAppMessage()}`;
-    window.open(whatsappUrl, "_blank");
+      if (orderError) throw orderError;
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
+      // Save order item
+      const { error: itemError } = await supabase
+        .from("order_items")
+        .insert({
+          order_id: order.id,
+          product_id: product.id,
+          product_name: product.nameAr,
+          product_image: product.image,
+          price: product.price,
+          quantity,
+        });
+
+      if (itemError) throw itemError;
+
+      // Open WhatsApp
+      const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${generateWhatsAppMessage()}`;
+      window.open(whatsappUrl, "_blank");
+
+      setIsSubmitting(false);
+      setIsSuccess(true);
+    } catch (err) {
+      setIsSubmitting(false);
+      toast.error("حدث خطأ أثناء إرسال الطلب");
+      console.error(err);
+    }
   };
 
   const handleClose = () => {
