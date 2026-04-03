@@ -4,12 +4,17 @@ import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Star, Truck, Shield, ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
+import CheckoutModal from "@/components/CheckoutModal";
 import { Button } from "@/components/ui/button";
 import { products, formatPrice } from "@/data/products";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const [relatedPage, setRelatedPage] = useState(0);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const { addItem } = useCart();
   const product = products.find((p) => p.id === id);
 
   if (!product) {
@@ -27,6 +32,13 @@ const ProductDetail = () => {
   const perPage = 3;
   const totalPages = Math.ceil(related.length / perPage);
   const visibleRelated = related.slice(relatedPage * perPage, relatedPage * perPage + perPage);
+
+  const handleAddToCart = () => {
+    addItem(product);
+    toast.success("تمت إضافة المنتج إلى السلة بنجاح", {
+      style: { background: "hsl(0 0% 7%)", border: "1px solid hsl(0 72% 51% / 0.3)", color: "hsl(0 0% 95%)" },
+    });
+  };
 
   return (
     <Layout>
@@ -76,8 +88,8 @@ const ProductDetail = () => {
             <div className="flex items-center gap-2 mb-6">
               {product.inStock ? (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-green-500 stock-pulse" />
-                  <span className="text-sm text-green-400 font-medium">متوفر في المخزون</span>
+                  <span className="w-2 h-2 rounded-full bg-primary/70 stock-pulse" />
+                  <span className="text-sm text-primary/80 font-medium">متوفر في المخزون</span>
                 </>
               ) : (
                 <span className="text-sm text-muted-foreground">غير متوفر</span>
@@ -86,14 +98,19 @@ const ProductDetail = () => {
 
             {/* Actions */}
             <div className="flex gap-3 mb-4">
-              <Button variant="hero" size="lg" className="flex-1 pulse-glow">
+              <Button variant="hero" size="lg" className="flex-1 pulse-glow" onClick={handleAddToCart}>
                 <ShoppingCart size={18} className="ml-2" /> أضف إلى السلة
               </Button>
               <Button variant="heroOutline" size="lg">
                 <Heart size={18} />
               </Button>
             </div>
-            <Button variant="cyber" size="lg" className="w-full mb-8 bg-accent text-accent-foreground hover:bg-accent/90">
+            <Button
+              variant="cyber"
+              size="lg"
+              className="w-full mb-8 bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all"
+              onClick={() => setCheckoutOpen(true)}
+            >
               اشتري الآن
             </Button>
 
@@ -115,7 +132,7 @@ const ProductDetail = () => {
           </motion.div>
         </div>
 
-        {/* Specs Table - HUD Style */}
+        {/* Specs Table */}
         <div className="mb-16">
           <h2 className="text-xl font-bold mb-4">المواصفات التقنية</h2>
           <div className="glass-card rounded-xl overflow-hidden bg-grid">
@@ -158,6 +175,13 @@ const ProductDetail = () => {
           </div>
         )}
       </div>
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        product={product}
+      />
     </Layout>
   );
 };
