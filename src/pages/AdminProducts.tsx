@@ -31,6 +31,7 @@ const AdminProducts = () => {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [editProduct, setEditProduct] = useState<DBProduct | null>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
