@@ -12,11 +12,14 @@ interface DBProduct {
   id: string;
   name: string;
   name_ar: string;
+  description: string | null;
+  description_ar: string | null;
   price: number;
   old_price: number | null;
   category: string;
   brand: string;
-  image: string;
+  image: string | null;
+  images: string[] | null;
   in_stock: boolean;
   stock_quantity: number;
   is_active: boolean;
