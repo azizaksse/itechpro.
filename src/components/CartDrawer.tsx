@@ -13,7 +13,7 @@ import {
 
 const itemVariants = {
   initial: { opacity: 0, x: -30, scale: 0.95 },
-  animate: { opacity: 1, x: 0, scale: 1, transition: { type: "spring", stiffness: 350, damping: 25 } },
+  animate: { opacity: 1, x: 0, scale: 1, transition: { type: "spring" as const, stiffness: 350, damping: 25 } },
   exit: { opacity: 0, x: 30, scale: 0.9, transition: { duration: 0.2 } },
 };
 
