@@ -160,6 +160,8 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="subtle" />
+
       {/* New Products */}
       <section className="py-16">
         <div className="container">
