@@ -229,6 +229,8 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="subtle" />
+
       {/* All Products */}
       <section className="py-16">
         <div className="container">
