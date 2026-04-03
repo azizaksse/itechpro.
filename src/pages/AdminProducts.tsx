@@ -196,6 +196,7 @@ const AdminProducts = () => {
       </div>
 
       <AddProductModal open={showAdd} onClose={() => setShowAdd(false)} onProductAdded={fetchProducts} />
+      <EditProductModal open={!!editProduct} product={editProduct} onClose={() => setEditProduct(null)} onProductUpdated={fetchProducts} />
     </AdminLayout>
   );
 };
