@@ -131,9 +131,29 @@ const ProductDetail = () => {
         {/* Related */}
         {related.length > 0 && (
           <div>
-            <h2 className="text-xl font-bold mb-6">منتجات مشابهة</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {related.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold">منتجات مشابهة</h2>
+              {totalPages > 1 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setRelatedPage((p) => Math.max(0, p - 1))}
+                    disabled={relatedPage === 0}
+                    className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-muted-foreground hover:text-primary disabled:opacity-30 transition-all"
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                  <button
+                    onClick={() => setRelatedPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={relatedPage === totalPages - 1}
+                    className="w-9 h-9 rounded-lg glass-card flex items-center justify-center text-muted-foreground hover:text-primary disabled:opacity-30 transition-all"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {visibleRelated.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
             </div>
           </div>
         )}
