@@ -300,7 +300,7 @@ const Index = () => {
       {/* FAQ */}
       <FAQSection />
 
-      <SectionDivider />
+      
 
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
