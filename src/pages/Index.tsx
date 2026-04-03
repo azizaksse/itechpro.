@@ -259,7 +259,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Promo Products */}
       <section className="py-16">
