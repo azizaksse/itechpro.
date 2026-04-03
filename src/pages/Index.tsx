@@ -114,7 +114,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Features */}
       <section className="py-12 overflow-hidden">
