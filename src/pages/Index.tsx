@@ -192,7 +192,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* Categories */}
       <section className="py-16 bg-card">
