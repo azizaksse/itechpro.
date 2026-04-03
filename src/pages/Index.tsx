@@ -211,6 +211,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Usage Category */}
+      <UsageCategorySection />
+
       {/* FAQ */}
       <FAQSection />
 
