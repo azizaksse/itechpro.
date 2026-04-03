@@ -47,14 +47,14 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <LanguageProvider>
-      <CartProvider>
-        <Toaster />
-        <Sonner />
-        <CartDrawer />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </CartProvider>
+        <CartProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <CartDrawer />
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </CartProvider>
       </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
