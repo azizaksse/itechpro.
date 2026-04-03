@@ -80,7 +80,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-3 mb-8">
+            <div className="flex gap-3 mb-4">
               <Button variant="hero" size="lg" className="flex-1 pulse-glow">
                 <ShoppingCart size={18} className="ml-2" /> أضف إلى السلة
               </Button>
@@ -88,6 +88,9 @@ const ProductDetail = () => {
                 <Heart size={18} />
               </Button>
             </div>
+            <Button variant="cyber" size="lg" className="w-full mb-8 bg-accent text-accent-foreground hover:bg-accent/90">
+              اشتري الآن
+            </Button>
 
             {/* Perks */}
             <div className="glass-card rounded-xl p-4 flex flex-col gap-3">
