@@ -114,8 +114,10 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="primary" />
+
       {/* Features */}
-      <section className="py-12 border-y border-secondary overflow-hidden">
+      <section className="py-12 overflow-hidden">
         <div className="container hidden sm:block">
           <motion.div
             variants={staggerContainer}
