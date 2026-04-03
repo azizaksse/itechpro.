@@ -18,6 +18,10 @@ import Contact from "./pages/Contact";
 import Delivery from "./pages/Delivery";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminOrders from "./pages/AdminOrders";
+import AdminProducts from "./pages/AdminProducts";
 
 const queryClient = new QueryClient();
 

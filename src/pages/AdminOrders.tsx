@@ -79,10 +79,10 @@ const AdminOrders = () => {
     }
   };
 
-  const updateStatus = async (orderId: string, status: string) => {
+const updateStatus = async (orderId: string, status: string) => {
     const { error } = await supabase
       .from("orders")
-      .update({ status })
+      .update({ status: status as any })
       .eq("id", orderId);
     if (error) {
       toast.error("خطأ في تحديث الحالة");
