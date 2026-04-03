@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import Layout from "@/components/Layout";
 import FAQSection from "@/components/FAQSection";
+import UsageCategorySection from "@/components/UsageCategorySection";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { products, categories } from "@/data/products";
 import heroImg from "@/assets/hero-pc.png";
