@@ -9,6 +9,7 @@ import { products, formatPrice } from "@/data/products";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const [relatedPage, setRelatedPage] = useState(0);
   const product = products.find((p) => p.id === id);
 
   if (!product) {
@@ -23,7 +24,6 @@ const ProductDetail = () => {
   }
 
   const related = products.filter((p) => p.category === product.category && p.id !== product.id);
-  const [relatedPage, setRelatedPage] = useState(0);
   const perPage = 3;
   const totalPages = Math.ceil(related.length / perPage);
   const visibleRelated = related.slice(relatedPage * perPage, relatedPage * perPage + perPage);
