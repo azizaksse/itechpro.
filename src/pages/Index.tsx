@@ -263,6 +263,8 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="primary" flip />
+
       {/* Promo Products */}
       <section className="py-16">
         <div className="container">
