@@ -6,16 +6,20 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AddProductModal from "@/components/admin/AddProductModal";
+import EditProductModal from "@/components/admin/EditProductModal";
 
 interface DBProduct {
   id: string;
   name: string;
   name_ar: string;
+  description: string | null;
+  description_ar: string | null;
   price: number;
   old_price: number | null;
   category: string;
   brand: string;
-  image: string;
+  image: string | null;
+  images: string[] | null;
   in_stock: boolean;
   stock_quantity: number;
   is_active: boolean;
@@ -30,6 +34,7 @@ const AdminProducts = () => {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [showAdd, setShowAdd] = useState(false);
+  const [editProduct, setEditProduct] = useState<DBProduct | null>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -162,7 +167,7 @@ const AdminProducts = () => {
                         <div className="flex items-center gap-1">
                           <button
                             className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
-                            onClick={() => toast.info("قريبًا: تعديل المنتج")}
+                            onClick={() => setEditProduct(product)}
                           >
                             <Edit2 size={14} />
                           </button>
@@ -194,6 +199,7 @@ const AdminProducts = () => {
       </div>
 
       <AddProductModal open={showAdd} onClose={() => setShowAdd(false)} onProductAdded={fetchProducts} />
+      <EditProductModal open={!!editProduct} product={editProduct} onClose={() => setEditProduct(null)} onProductUpdated={fetchProducts} />
     </AdminLayout>
   );
 };
