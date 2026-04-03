@@ -297,11 +297,17 @@ const Index = () => {
         </div>
       </section>
 
+      <WaveDivider variant="accent" />
+
       {/* Usage Category */}
       <UsageCategorySection />
 
+      <WaveDivider variant="subtle" flip />
+
       {/* FAQ */}
       <FAQSection />
+
+      <WaveDivider variant="primary" />
 
       {/* CTA */}
       <section className="py-20 relative overflow-hidden">
