@@ -18,6 +18,10 @@ import Contact from "./pages/Contact";
 import Delivery from "./pages/Delivery";
 import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminOrders from "./pages/AdminOrders";
+import AdminProducts from "./pages/AdminProducts";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +40,10 @@ const AnimatedRoutes = () => {
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
           <Route path="/delivery" element={<PageTransition><Delivery /></PageTransition>} />
           <Route path="/faq" element={<PageTransition><FAQ /></PageTransition>} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/orders" element={<AdminOrders />} />
+          <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>
