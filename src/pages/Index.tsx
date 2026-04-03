@@ -159,7 +159,6 @@ const Index = () => {
         </div>
       </section>
 
-      <SectionDivider />
 
       {/* New Products */}
       <section className="py-16">
