@@ -166,8 +166,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Usage Category */}
-      <UsageCategorySection />
 
       {/* All Products */}
       <section className="py-16">
@@ -212,6 +210,9 @@ const Index = () => {
           )}
         </div>
       </section>
+
+      {/* Usage Category */}
+      <UsageCategorySection />
 
       {/* FAQ */}
       <FAQSection />
