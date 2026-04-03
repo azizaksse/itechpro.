@@ -166,6 +166,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Usage Category */}
+      <UsageCategorySection />
+
       {/* All Products */}
       <section className="py-16">
         <div className="container">
