@@ -296,7 +296,6 @@ const Index = () => {
       {/* Usage Category */}
       <UsageCategorySection />
 
-      <SectionDivider />
 
       {/* FAQ */}
       <FAQSection />
