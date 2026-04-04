@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Truck, Building2, MapPin, Phone, User, ChevronDown, Package, CheckCircle2, MessageCircle } from "lucide-react";
+import { X, Minus, Plus, Truck, Building2, MapPin, Phone, User, ChevronDown, Package, CheckCircle2, MessageCircle, PartyPopper, Gift, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product, formatPrice } from "@/data/products";
 import { wilayas, getWilayaByCode } from "@/data/algerianWilayas";
