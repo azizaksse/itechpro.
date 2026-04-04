@@ -122,16 +122,17 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-card border border-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div className="bg-card border border-border rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card/95 backdrop-blur-sm z-10 rounded-t-2xl">
+        <div className="flex items-center justify-between p-5 border-b border-border bg-card rounded-t-2xl shrink-0">
           <h2 className="text-xl font-bold">إضافة منتج جديد</h2>
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-secondary transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <div className="p-5 space-y-5">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 hover:scrollbar-thumb-primary/40">
           {/* Product Name */}
           <div className="space-y-1.5">
             <Label>اسم المنتج *</Label>
@@ -266,8 +267,8 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
           </div>
         </div>
 
-        {/* Submit */}
-        <div className="flex items-center justify-end gap-3 p-5 border-t border-border sticky bottom-0 bg-card/95 backdrop-blur-sm rounded-b-2xl">
+        {/* Submit - Fixed Footer */}
+        <div className="flex items-center justify-end gap-3 p-5 border-t border-border bg-card rounded-b-2xl shrink-0">
           <Button variant="ghost" onClick={onClose} disabled={loading}>إلغاء</Button>
           <Button onClick={handleSubmit} disabled={loading} className="gap-2">
             {loading ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
