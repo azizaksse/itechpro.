@@ -232,7 +232,7 @@ ${checkoutItems.map(item => `• ${item.product.nameAr} × ${item.quantity}`).jo
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto glass-card rounded-2xl border border-primary/20 shadow-[0_0_40px_hsl(var(--primary)/0.15)]"
+            className="relative w-full max-w-lg max-h-[90vh] flex flex-col glass-card rounded-2xl border border-primary/20 shadow-[0_0_40px_hsl(var(--primary)/0.15)]"
           >
             {/* Header */}
             <div className="sticky top-0 z-10 flex items-center justify-between p-5 border-b border-secondary bg-card/95 backdrop-blur-md rounded-t-2xl">
