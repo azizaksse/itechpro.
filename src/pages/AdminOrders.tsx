@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/data/products";
 import { ChevronDown, Eye, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useOrderNotifications } from "@/hooks/useOrderNotifications";
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   new: { label: "جديد", color: "bg-blue-500/20 text-blue-400" },
@@ -50,16 +51,19 @@ const AdminOrders = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     const { data } = await supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setOrders(data as Order[]);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+
+  // Realtime: auto-add new orders with sound notification
+  useOrderNotifications(fetchOrders);
 
   const fetchItems = async (orderId: string) => {
     if (orderItems[orderId]) return;

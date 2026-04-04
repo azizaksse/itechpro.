@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice } from "@/data/products";
 import { ShoppingCart, Clock, Package, DollarSign } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useOrderNotifications } from "@/hooks/useOrderNotifications";
 
 interface Stats {
   totalOrders: number;
@@ -20,26 +21,30 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const [ordersRes, productsRes] = await Promise.all([
-        supabase.from("orders").select("*"),
-        supabase.from("products").select("id", { count: "exact", head: true }),
-      ]);
+  const fetchStats = useCallback(async () => {
+    const [ordersRes, productsRes] = await Promise.all([
+      supabase.from("orders").select("*"),
+      supabase.from("products").select("id", { count: "exact", head: true }),
+    ]);
 
-      const orders = ordersRes.data || [];
-      const totalProducts = productsRes.count || 0;
+    const orders = ordersRes.data || [];
+    const totalProducts = productsRes.count || 0;
 
-      setStats({
-        totalOrders: orders.length,
-        pendingOrders: orders.filter((o: any) => o.status === "new").length,
-        totalProducts,
-        totalSales: orders.filter((o: any) => o.status === "delivered").reduce((sum: number, o: any) => sum + o.total, 0),
-      });
-      setLoading(false);
-    };
-    fetchStats();
+    setStats({
+      totalOrders: orders.length,
+      pendingOrders: orders.filter((o: any) => o.status === "new").length,
+      totalProducts,
+      totalSales: orders.filter((o: any) => o.status === "delivered").reduce((sum: number, o: any) => sum + o.total, 0),
+    });
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  // Realtime: auto-refresh stats on new order
+  useOrderNotifications(fetchStats);
 
   const cards = [
     { title: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, color: "text-primary" },
