@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Truck, Building2, MapPin, Phone, User, ChevronDown, Package, CheckCircle2, MessageCircle } from "lucide-react";
+import { X, Minus, Plus, Truck, Building2, MapPin, Phone, User, ChevronDown, Package, CheckCircle2, MessageCircle, PartyPopper, Gift, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product, formatPrice } from "@/data/products";
 import { wilayas, getWilayaByCode } from "@/data/algerianWilayas";
@@ -37,6 +37,7 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const customerWhatsAppRef = useRef<string | null>(null);
 
   // Determine items to checkout
   const checkoutItems: CheckoutItem[] = useMemo(() => {
@@ -152,8 +153,38 @@ ${itemsText}
 
       if (itemError) throw itemError;
 
+      // Open WhatsApp to admin
       const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${generateWhatsAppMessage()}`;
       window.open(whatsappUrl, "_blank");
+
+      // Generate customer confirmation WhatsApp link
+      const customerPhone = phone.startsWith("0") ? `213${phone.slice(1)}` : phone;
+      const confirmMsg = encodeURIComponent(
+`✅ *تأكيد الطلب - PRO PC DZ*
+━━━━━━━━━━━━━━━
+مرحباً ${firstName} ${lastName}! 🎉
+
+تم استلام طلبك بنجاح!
+
+📦 *تفاصيل الطلب:*
+${checkoutItems.map(item => `• ${item.product.nameAr} × ${item.quantity}`).join("\n")}
+
+💵 *المجموع:* ${formatPrice(total)}
+🏙️ *التوصيل إلى:* ${wilaya?.name || ""} - ${selectedCommune}
+
+سيتم التواصل معك قريباً لتأكيد الطلب وتحديد موعد التوصيل.
+
+شكراً لثقتك بنا! ❤️
+━━━━━━━━━━━━━━━`
+      );
+      customerWhatsAppRef.current = `https://wa.me/${customerPhone}?text=${confirmMsg}`;
+
+      // Auto-open customer confirmation
+      setTimeout(() => {
+        if (customerWhatsAppRef.current) {
+          window.open(customerWhatsAppRef.current, "_blank");
+        }
+      }, 1500);
 
       setIsSubmitting(false);
       setIsSuccess(true);
@@ -221,20 +252,72 @@ ${itemsText}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="p-8 text-center"
+                  className="p-8 text-center space-y-5"
                 >
+                  {/* Animated celebration */}
+                  <div className="relative">
+                    <motion.div
+                      initial={{ scale: 0, rotate: -180 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", damping: 12, delay: 0.1 }}
+                      className="w-20 h-20 mx-auto rounded-full bg-primary/15 flex items-center justify-center"
+                    >
+                      <CheckCircle2 size={48} className="text-primary" />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="absolute -top-2 -right-2"
+                    >
+                      <PartyPopper size={24} className="text-yellow-500" />
+                    </motion.div>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="absolute -top-2 -left-2"
+                    >
+                      <Gift size={24} className="text-primary" />
+                    </motion.div>
+                  </div>
+
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", damping: 15, delay: 0.2 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
                   >
-                    <CheckCircle2 size={64} className="mx-auto text-primary mb-4" />
+                    <h3 className="text-2xl font-bold mb-2">شكراً لك! 🎉</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      تم استلام طلبك بنجاح وسيتم التواصل معك قريباً لتأكيد الطلب وتحديد موعد التوصيل
+                    </p>
                   </motion.div>
-                  <h3 className="text-xl font-bold mb-2">تم إرسال الطلب بنجاح</h3>
-                  <p className="text-muted-foreground mb-6">سنتواصل معك قريبًا لتأكيد الطلب</p>
-                  <Button variant="hero" onClick={handleClose} className="w-full">
-                    إغلاق
-                  </Button>
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.5 }}
+                    className="glass-card rounded-xl p-4 text-sm space-y-2"
+                  >
+                    <div className="flex items-center justify-center gap-2 text-primary font-semibold">
+                      <Heart size={16} />
+                      <span>نقدّر ثقتك بنا</span>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      تم إرسال تأكيد الطلب إلى واتساب الخاص بك
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.7 }}
+                    className="space-y-3"
+                  >
+                    <Button variant="hero" onClick={handleClose} className="w-full pulse-glow">
+                      متابعة التسوق
+                    </Button>
+                  </motion.div>
                 </motion.div>
               ) : (
                 <motion.form
