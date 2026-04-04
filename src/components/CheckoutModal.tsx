@@ -138,7 +138,7 @@ ${itemsText}
 
       // Save all order items
       const orderItems = checkoutItems.map(item => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: item.product.id,
         product_name: item.product.nameAr,
         product_image: item.product.image,
