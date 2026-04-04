@@ -235,7 +235,7 @@ ${checkoutItems.map(item => `• ${item.product.nameAr} × ${item.quantity}`).jo
             className="relative w-full max-w-lg max-h-[90vh] flex flex-col glass-card rounded-2xl border border-primary/20 shadow-[0_0_40px_hsl(var(--primary)/0.15)]"
           >
             {/* Header */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-5 border-b border-secondary bg-card/95 backdrop-blur-md rounded-t-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-secondary bg-card/95 backdrop-blur-md rounded-t-2xl shrink-0">
               <h2 className="text-lg font-bold flex items-center gap-2">
                 <Package size={20} className="text-primary" />
                 إتمام الطلب
@@ -244,6 +244,8 @@ ${checkoutItems.map(item => `• ${item.product.nameAr} × ${item.quantity}`).jo
                 <X size={16} />
               </button>
             </div>
+
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-primary/20 hover:scrollbar-thumb-primary/40">
 
             <AnimatePresence mode="wait">
               {isSuccess ? (
