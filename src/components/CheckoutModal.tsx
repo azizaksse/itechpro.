@@ -116,9 +116,11 @@ ${itemsText}
     setIsSubmitting(true);
 
     try {
-      const { data: order, error: orderError } = await supabase
+      const orderId = crypto.randomUUID();
+      const { error: orderError } = await supabase
         .from("orders")
         .insert({
+          id: orderId,
           customer_first_name: firstName,
           customer_last_name: lastName,
           phone,
@@ -130,15 +132,13 @@ ${itemsText}
           subtotal,
           delivery_fee: deliveryFee,
           total,
-        })
-        .select("id")
-        .single();
+        });
 
       if (orderError) throw orderError;
 
       // Save all order items
       const orderItems = checkoutItems.map(item => ({
-        order_id: order.id,
+        order_id: orderId,
         product_id: item.product.id,
         product_name: item.product.nameAr,
         product_image: item.product.image,
