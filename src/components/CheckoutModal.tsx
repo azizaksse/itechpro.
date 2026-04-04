@@ -37,6 +37,7 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState("");
+  const customerWhatsAppRef = useRef<string | null>(null);
 
   // Determine items to checkout
   const checkoutItems: CheckoutItem[] = useMemo(() => {
