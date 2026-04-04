@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/products";
-import { X, Upload, Trash2, Loader2, Plus, CheckCircle } from "lucide-react";
+import { X, Upload, Trash2, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,9 +21,13 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
     name: "",
     description: "",
     price: "",
+    old_price: "",
     category: "accessories",
+    brand: "",
     stock_quantity: "1",
     is_active: true,
+    is_new: false,
+    is_promo: false,
   });
   const [images, setImages] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -87,12 +91,16 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
         description: form.description.trim(),
         description_ar: form.description.trim(),
         price: Number(form.price),
+        old_price: form.old_price ? Number(form.old_price) : null,
         category: form.category,
+        brand: form.brand.trim(),
         image: images[0] || "",
         images,
         stock_quantity: Number(form.stock_quantity) || 0,
         in_stock: Number(form.stock_quantity) > 0,
         is_active: form.is_active,
+        is_new: form.is_new,
+        is_promo: form.is_promo,
       });
 
       if (error) throw error;
@@ -100,7 +108,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
       toast.success("تم إضافة المنتج بنجاح 🎉");
       onProductAdded();
       onClose();
-      setForm({ name: "", description: "", price: "", category: "accessories", stock_quantity: "1", is_active: true });
+      setForm({ name: "", description: "", price: "", old_price: "", category: "accessories", brand: "", stock_quantity: "1", is_active: true, is_new: false, is_promo: false });
       setImages([]);
       setErrors({});
     } catch (err: any) {
@@ -124,7 +132,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
         </div>
 
         <div className="p-5 space-y-5">
-          {/* 1. Product Name */}
+          {/* Product Name */}
           <div className="space-y-1.5">
             <Label>اسم المنتج *</Label>
             <Input
@@ -135,7 +143,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
           </div>
 
-          {/* 2. Product Description */}
+          {/* Description */}
           <div className="space-y-1.5">
             <Label>وصف المنتج</Label>
             <textarea
@@ -147,7 +155,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
             />
           </div>
 
-          {/* 3. Product Images */}
+          {/* Images */}
           <div className="space-y-1.5">
             <Label>صور المنتج</Label>
             <div className="flex flex-wrap gap-3">
@@ -176,35 +184,58 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
             </div>
           </div>
 
-          {/* 4. Price */}
-          <div className="space-y-1.5">
-            <Label>السعر (د.ج) *</Label>
-            <Input
-              type="number"
-              placeholder="185000"
-              value={form.price}
-              onChange={(e) => updateField("price", e.target.value)}
-              dir="ltr"
-              min="0"
-            />
-            {errors.price && <p className="text-xs text-destructive">{errors.price}</p>}
+          {/* Price & Old Price */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>السعر (د.ج) *</Label>
+              <Input
+                type="number"
+                placeholder="185000"
+                value={form.price}
+                onChange={(e) => updateField("price", e.target.value)}
+                dir="ltr"
+                min="0"
+              />
+              {errors.price && <p className="text-xs text-destructive">{errors.price}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <Label>السعر القديم (اختياري)</Label>
+              <Input
+                type="number"
+                value={form.old_price}
+                onChange={(e) => updateField("old_price", e.target.value)}
+                dir="ltr"
+                min="0"
+                placeholder="للعروض"
+              />
+            </div>
           </div>
 
-          {/* 5. Category Dropdown */}
-          <div className="space-y-1.5">
-            <Label>الفئة *</Label>
-            <select
-              value={form.category}
-              onChange={(e) => updateField("category", e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-secondary text-sm appearance-none focus:outline-none focus:border-primary/50 transition-all"
-            >
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.nameAr}</option>
-              ))}
-            </select>
+          {/* Category & Brand */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>الفئة *</Label>
+              <select
+                value={form.category}
+                onChange={(e) => updateField("category", e.target.value)}
+                className="w-full px-4 py-2.5 rounded-xl bg-secondary/50 border border-secondary text-sm appearance-none focus:outline-none focus:border-primary/50 transition-all"
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>{c.nameAr}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>العلامة التجارية</Label>
+              <Input
+                value={form.brand}
+                onChange={(e) => updateField("brand", e.target.value)}
+                placeholder="مثال: MSI"
+              />
+            </div>
           </div>
 
-          {/* 6. Stock Quantity */}
+          {/* Stock */}
           <div className="space-y-1.5">
             <Label>كمية المخزون *</Label>
             <Input
@@ -218,14 +249,24 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
             {errors.stock_quantity && <p className="text-xs text-destructive">{errors.stock_quantity}</p>}
           </div>
 
-          {/* 7. Visibility Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border">
-            <Label className="cursor-pointer">تفعيل المنتج (مرئي في المتجر)</Label>
-            <Switch checked={form.is_active} onCheckedChange={(v) => updateField("is_active", v)} />
+          {/* Toggles */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border">
+              <Label className="cursor-pointer">تفعيل المنتج (مرئي في المتجر)</Label>
+              <Switch checked={form.is_active} onCheckedChange={(v) => updateField("is_active", v)} />
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border">
+              <Label className="cursor-pointer">منتج جديد</Label>
+              <Switch checked={form.is_new} onCheckedChange={(v) => updateField("is_new", v)} />
+            </div>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border">
+              <Label className="cursor-pointer">عرض خاص</Label>
+              <Switch checked={form.is_promo} onCheckedChange={(v) => updateField("is_promo", v)} />
+            </div>
           </div>
         </div>
 
-        {/* 8. Submit Button */}
+        {/* Submit */}
         <div className="flex items-center justify-end gap-3 p-5 border-t border-border sticky bottom-0 bg-card/95 backdrop-blur-sm rounded-b-2xl">
           <Button variant="ghost" onClick={onClose} disabled={loading}>إلغاء</Button>
           <Button onClick={handleSubmit} disabled={loading} className="gap-2">
