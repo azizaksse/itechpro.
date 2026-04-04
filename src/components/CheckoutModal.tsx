@@ -152,8 +152,38 @@ ${itemsText}
 
       if (itemError) throw itemError;
 
+      // Open WhatsApp to admin
       const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${generateWhatsAppMessage()}`;
       window.open(whatsappUrl, "_blank");
+
+      // Generate customer confirmation WhatsApp link
+      const customerPhone = phone.startsWith("0") ? `213${phone.slice(1)}` : phone;
+      const confirmMsg = encodeURIComponent(
+`✅ *تأكيد الطلب - PRO PC DZ*
+━━━━━━━━━━━━━━━
+مرحباً ${firstName} ${lastName}! 🎉
+
+تم استلام طلبك بنجاح!
+
+📦 *تفاصيل الطلب:*
+${checkoutItems.map(item => `• ${item.product.nameAr} × ${item.quantity}`).join("\n")}
+
+💵 *المجموع:* ${formatPrice(total)}
+🏙️ *التوصيل إلى:* ${wilaya?.name || ""} - ${selectedCommune}
+
+سيتم التواصل معك قريباً لتأكيد الطلب وتحديد موعد التوصيل.
+
+شكراً لثقتك بنا! ❤️
+━━━━━━━━━━━━━━━`
+      );
+      customerWhatsAppRef.current = `https://wa.me/${customerPhone}?text=${confirmMsg}`;
+
+      // Auto-open customer confirmation
+      setTimeout(() => {
+        if (customerWhatsAppRef.current) {
+          window.open(customerWhatsAppRef.current, "_blank");
+        }
+      }, 1500);
 
       setIsSubmitting(false);
       setIsSuccess(true);
