@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Star, Truck, Shield, ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingCart, Heart, Star, Truck, Shield, ArrowRight, Check, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import CheckoutModal from "@/components/CheckoutModal";
 import { Button } from "@/components/ui/button";
-import { products, formatPrice } from "@/data/products";
+import { formatPrice } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 
@@ -15,7 +16,18 @@ const ProductDetail = () => {
   const [relatedPage, setRelatedPage] = useState(0);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const { addItem } = useCart();
+  const { products, loading } = useProducts();
   const product = products.find((p) => p.id === id);
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container py-20 flex justify-center">
+          <Loader2 className="animate-spin text-muted-foreground" size={32} />
+        </div>
+      </Layout>
+    );
+  }
 
   if (!product) {
     return (
@@ -133,17 +145,19 @@ const ProductDetail = () => {
         </div>
 
         {/* Specs Table */}
-        <div className="mb-16">
-          <h2 className="text-xl font-bold mb-4">المواصفات التقنية</h2>
-          <div className="glass-card rounded-xl overflow-hidden bg-grid">
-            {Object.entries(product.specs).map(([key, val], i) => (
-              <div key={key} className={`flex items-center justify-between p-4 ${i > 0 ? 'border-t border-secondary' : ''}`}>
-                <span className="text-sm text-muted-foreground">{key}</span>
-                <span className="text-sm font-medium font-mono">{val}</span>
-              </div>
-            ))}
+        {product.specs && Object.keys(product.specs).length > 0 && (
+          <div className="mb-16">
+            <h2 className="text-xl font-bold mb-4">المواصفات التقنية</h2>
+            <div className="glass-card rounded-xl overflow-hidden bg-grid">
+              {Object.entries(product.specs).map(([key, val], i) => (
+                <div key={key} className={`flex items-center justify-between p-4 ${i > 0 ? 'border-t border-secondary' : ''}`}>
+                  <span className="text-sm text-muted-foreground">{key}</span>
+                  <span className="text-sm font-medium font-mono">{val}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Related */}
         {related.length > 0 && (

@@ -1,9 +1,48 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
+import { Phone, Mail, MapPin, MessageCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Contact = () => {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !message.trim()) {
+      toast.error("يرجى ملء الحقول المطلوبة");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase.from("contact_messages").insert({
+        name: name.trim(),
+        phone: phone.trim() || null,
+        email: email.trim() || null,
+        message: message.trim(),
+      });
+
+      if (error) throw error;
+
+      toast.success("تم إرسال رسالتك بنجاح ✅");
+      setName("");
+      setPhone("");
+      setEmail("");
+      setMessage("");
+    } catch (err: any) {
+      toast.error("فشل إرسال الرسالة: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="container py-16 max-w-4xl">
@@ -34,12 +73,42 @@ const Contact = () => {
             {/* Form */}
             <div className="glass-card rounded-xl p-6">
               <h3 className="font-bold mb-4">أرسل لنا رسالة</h3>
-              <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
-                <input placeholder="الاسم" className="w-full h-10 px-3 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30" />
-                <input placeholder="رقم الهاتف" className="w-full h-10 px-3 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30" />
-                <input placeholder="البريد الإلكتروني" type="email" className="w-full h-10 px-3 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30" />
-                <textarea placeholder="رسالتك" rows={4} className="w-full px-3 py-2 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30 resize-none" />
-                <Button variant="hero" className="w-full">إرسال</Button>
+              <form className="space-y-3" onSubmit={handleSubmit}>
+                <input
+                  placeholder="الاسم *"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30"
+                  required
+                  maxLength={100}
+                />
+                <input
+                  placeholder="رقم الهاتف"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30"
+                  maxLength={15}
+                />
+                <input
+                  placeholder="البريد الإلكتروني"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30"
+                  maxLength={255}
+                />
+                <textarea
+                  placeholder="رسالتك *"
+                  rows={4}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full px-3 py-2 rounded-md bg-secondary text-sm text-foreground placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30 resize-none"
+                  required
+                  maxLength={1000}
+                />
+                <Button variant="hero" className="w-full" type="submit" disabled={loading}>
+                  {loading ? <Loader2 size={16} className="animate-spin" /> : "إرسال"}
+                </Button>
               </form>
             </div>
           </div>
