@@ -7,18 +7,25 @@ import { wilayas, getWilayaByCode } from "@/data/algerianWilayas";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+export interface CheckoutItem {
+  product: Product;
+  quantity: number;
+}
+
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: Product;
+  product?: Product;
+  cartItems?: CheckoutItem[];
+  onOrderSuccess?: () => void;
 }
 
 type DeliveryMethod = "home" | "office";
 
-const ADMIN_PHONE = "213XXXXXXXXX"; // Replace with actual admin phone
+const ADMIN_PHONE = "213XXXXXXXXX";
 
-const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
-  const [quantity, setQuantity] = useState(1);
+const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: CheckoutModalProps) => {
+  const [singleQuantity, setSingleQuantity] = useState(1);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
@@ -31,22 +38,29 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
   const [isSuccess, setIsSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState("");
 
+  // Determine items to checkout
+  const checkoutItems: CheckoutItem[] = useMemo(() => {
+    if (cartItems && cartItems.length > 0) return cartItems;
+    if (product) return [{ product, quantity: singleQuantity }];
+    return [];
+  }, [cartItems, product, singleQuantity]);
+
+  const isSingleProduct = !cartItems || cartItems.length === 0;
+
   const wilaya = useMemo(() => getWilayaByCode(selectedWilaya), [selectedWilaya]);
   const communes = wilaya?.communes || [];
   const deliveryFee = wilaya
     ? deliveryMethod === "home" ? wilaya.deliveryHome : wilaya.deliveryOffice
     : 0;
-  const subtotal = product.price * quantity;
+  const subtotal = checkoutItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const total = subtotal + deliveryFee;
 
   const validatePhone = (value: string): boolean => {
-    // Algerian mobile: 05, 06, 07 followed by 8 digits
     const algerianPhoneRegex = /^0[567]\d{8}$/;
     return algerianPhoneRegex.test(value);
   };
 
   const handlePhoneChange = (value: string) => {
-    // Allow only digits
     const cleaned = value.replace(/\D/g, "").slice(0, 10);
     setPhone(cleaned);
     if (cleaned.length > 0 && cleaned.length < 10) {
@@ -65,19 +79,24 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
     selectedWilaya &&
     selectedCommune &&
     address.trim() &&
-    (deliveryMethod === "home" || officeName.trim());
+    (deliveryMethod === "home" || officeName.trim()) &&
+    checkoutItems.length > 0;
 
   const generateWhatsAppMessage = () => {
     const wilayaName = wilaya?.name || "";
     const deliveryText = deliveryMethod === "home" ? "إلى المنزل" : `إلى مكتب التوصيل: ${officeName}`;
     
+    const itemsText = checkoutItems.map(item => 
+      `📦 ${item.product.nameAr} × ${item.quantity} = ${formatPrice(item.product.price * item.quantity)}`
+    ).join("\n");
+
     const msg = `🛒 *طلب جديد*
 ━━━━━━━━━━━━━━━
-📦 *المنتج:* ${product.nameAr}
-💰 *السعر:* ${formatPrice(product.price)}
-🔢 *الكمية:* ${quantity}
+${itemsText}
+━━━━━━━━━━━━━━━
+💰 *المجموع الفرعي:* ${formatPrice(subtotal)}
 🚚 *رسوم التوصيل:* ${formatPrice(deliveryFee)}
-💵 *المجموع:* ${formatPrice(total)}
+💵 *المجموع الكلي:* ${formatPrice(total)}
 ━━━━━━━━━━━━━━━
 👤 *الاسم:* ${firstName} ${lastName}
 📱 *الهاتف:* ${phone}
@@ -97,7 +116,6 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
     setIsSubmitting(true);
 
     try {
-      // Save order to database
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -118,26 +136,28 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
 
       if (orderError) throw orderError;
 
-      // Save order item
+      // Save all order items
+      const orderItems = checkoutItems.map(item => ({
+        order_id: order.id,
+        product_id: item.product.id,
+        product_name: item.product.nameAr,
+        product_image: item.product.image,
+        price: item.product.price,
+        quantity: item.quantity,
+      }));
+
       const { error: itemError } = await supabase
         .from("order_items")
-        .insert({
-          order_id: order.id,
-          product_id: product.id,
-          product_name: product.nameAr,
-          product_image: product.image,
-          price: product.price,
-          quantity,
-        });
+        .insert(orderItems);
 
       if (itemError) throw itemError;
 
-      // Open WhatsApp
       const whatsappUrl = `https://wa.me/${ADMIN_PHONE}?text=${generateWhatsAppMessage()}`;
       window.open(whatsappUrl, "_blank");
 
       setIsSubmitting(false);
       setIsSuccess(true);
+      toast.success("تم إرسال الطلب بنجاح!");
     } catch (err) {
       setIsSubmitting(false);
       toast.error("حدث خطأ أثناء إرسال الطلب");
@@ -146,8 +166,11 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
   };
 
   const handleClose = () => {
+    if (isSuccess && onOrderSuccess) {
+      onOrderSuccess();
+    }
     setIsSuccess(false);
-    setQuantity(1);
+    setSingleQuantity(1);
     setFirstName("");
     setLastName("");
     setPhone("");
@@ -170,10 +193,8 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           onClick={handleClose}
         >
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" />
 
-          {/* Modal */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -225,28 +246,34 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
                   className="p-5 space-y-5"
                 >
                   {/* Product Summary */}
-                  <div className="glass-card rounded-xl p-4">
-                    <div className="flex gap-3">
-                      <img src={product.image} alt={product.nameAr} className="w-16 h-16 rounded-lg object-cover" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold line-clamp-2">{product.nameAr}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{product.brand}</p>
-                        <p className="text-sm font-bold text-primary mt-1">{formatPrice(product.price)}</p>
+                  <div className="glass-card rounded-xl p-4 space-y-3">
+                    {checkoutItems.map((item, index) => (
+                      <div key={item.product.id} className={index > 0 ? "pt-3 border-t border-secondary" : ""}>
+                        <div className="flex gap-3">
+                          <img src={item.product.image} alt={item.product.nameAr} className="w-16 h-16 rounded-lg object-cover" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold line-clamp-2">{item.product.nameAr}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{item.product.brand}</p>
+                            <div className="flex items-center justify-between mt-1">
+                              <p className="text-sm font-bold text-primary">{formatPrice(item.product.price)}</p>
+                              {isSingleProduct ? (
+                                <div className="flex items-center gap-2">
+                                  <button type="button" onClick={() => setSingleQuantity(Math.max(1, singleQuantity - 1))} className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                                    <Minus size={14} />
+                                  </button>
+                                  <span className="w-8 text-center text-sm font-bold">{singleQuantity}</span>
+                                  <button type="button" onClick={() => setSingleQuantity(singleQuantity + 1)} className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                                    <Plus size={14} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">× {item.quantity}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    {/* Quantity */}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-secondary">
-                      <span className="text-sm text-muted-foreground">الكمية</span>
-                      <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-                          <Minus size={14} />
-                        </button>
-                        <span className="w-8 text-center text-sm font-bold">{quantity}</span>
-                        <button type="button" onClick={() => setQuantity(quantity + 1)} className="w-7 h-7 rounded-md bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
 
                   {/* Personal Info */}
@@ -296,7 +323,6 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
                     <h3 className="text-sm font-bold text-muted-foreground flex items-center gap-2">
                       <MapPin size={14} className="text-primary" /> عنوان التوصيل
                     </h3>
-                    {/* Wilaya */}
                     <div className="relative">
                       <select
                         value={selectedWilaya}
@@ -311,7 +337,6 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
                       </select>
                       <ChevronDown size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                     </div>
-                    {/* Commune */}
                     <div className="relative">
                       <select
                         value={selectedCommune}
@@ -327,7 +352,6 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
                       </select>
                       <ChevronDown size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                     </div>
-                    {/* Full Address */}
                     <input
                       type="text"
                       placeholder="العنوان الكامل"
@@ -387,14 +411,12 @@ const CheckoutModal = ({ isOpen, onClose, product }: CheckoutModalProps) => {
 
                   {/* Price Summary */}
                   <div className="glass-card rounded-xl p-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">سعر المنتج</span>
-                      <span>{formatPrice(product.price)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">الكمية</span>
-                      <span>× {quantity}</span>
-                    </div>
+                    {checkoutItems.map((item) => (
+                      <div key={item.product.id} className="flex justify-between text-sm">
+                        <span className="text-muted-foreground line-clamp-1 flex-1">{item.product.nameAr} × {item.quantity}</span>
+                        <span className="mr-2">{formatPrice(item.product.price * item.quantity)}</span>
+                      </div>
+                    ))}
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">المجموع الفرعي</span>
                       <span>{formatPrice(subtotal)}</span>
