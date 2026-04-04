@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { products } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import { ShoppingCart, Clock, Package, DollarSign } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -16,22 +15,27 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState<Stats>({
     totalOrders: 0,
     pendingOrders: 0,
-    totalProducts: products.length,
+    totalProducts: 0,
     totalSales: 0,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
-      const { data: orders } = await supabase.from("orders").select("*");
-      if (orders) {
-        setStats({
-          totalOrders: orders.length,
-          pendingOrders: orders.filter((o: any) => o.status === "new").length,
-          totalProducts: products.length,
-          totalSales: orders.filter((o: any) => o.status === "delivered").reduce((sum: number, o: any) => sum + o.total, 0),
-        });
-      }
+      const [ordersRes, productsRes] = await Promise.all([
+        supabase.from("orders").select("*"),
+        supabase.from("products").select("id", { count: "exact", head: true }),
+      ]);
+
+      const orders = ordersRes.data || [];
+      const totalProducts = productsRes.count || 0;
+
+      setStats({
+        totalOrders: orders.length,
+        pendingOrders: orders.filter((o: any) => o.status === "new").length,
+        totalProducts,
+        totalSales: orders.filter((o: any) => o.status === "delivered").reduce((sum: number, o: any) => sum + o.total, 0),
+      });
       setLoading(false);
     };
     fetchStats();

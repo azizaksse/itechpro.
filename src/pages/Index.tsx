@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
-import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot } from "lucide-react";
+import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import Layout from "@/components/Layout";
@@ -12,7 +12,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 import HeroParticles from "@/components/HeroParticles";
 
 import { useLanguage } from "@/contexts/LanguageContext";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import heroImg from "@/assets/hero-pc.png";
 
 const categoryIcons: Record<string, any> = {
@@ -34,6 +35,7 @@ const staggerItem = {
 const Index = () => {
   const isMobile = useIsMobile();
   const { t } = useLanguage();
+  const { products, loading } = useProducts();
   const [visibleCount, setVisibleCount] = useState(4);
   const [visibleNewCount, setVisibleNewCount] = useState(4);
   const [visiblePromoCount, setVisiblePromoCount] = useState(4);
@@ -48,7 +50,6 @@ const Index = () => {
       {/* Hero */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-30" />
-        {/* Animated gradient background */}
         <div
           className="absolute inset-0"
           style={{
@@ -169,26 +170,32 @@ const Index = () => {
               <Link to="/products" className="text-sm text-primary hover:underline">{t("section.viewAll")}</Link>
             </div>
           </ScrollReveal>
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-          >
-            {newProducts.map((p, i) => (
-              <motion.div key={p.id} variants={staggerItem}>
-                <ProductCard product={p} index={i} />
+          {loading ? (
+            <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
+          ) : newProducts.length > 0 ? (
+            <>
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
+                {newProducts.map((p, i) => (
+                  <motion.div key={p.id} variants={staggerItem}>
+                    <ProductCard product={p} index={i} />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
-          {visibleNewCount < allNewProducts.length && (
-            <div className="text-center mt-8">
-              <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisibleNewCount((c) => Math.min(c + 6, allNewProducts.length))}>
-                {t("section.loadMore")} ({allNewProducts.length - visibleNewCount} {t("section.remaining")})
-              </Button>
-            </div>
-          )}
+              {visibleNewCount < allNewProducts.length && (
+                <div className="text-center mt-8">
+                  <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisibleNewCount((c) => Math.min(c + 6, allNewProducts.length))}>
+                    {t("section.loadMore")} ({allNewProducts.length - visibleNewCount} {t("section.remaining")})
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
       </section>
 
@@ -236,25 +243,31 @@ const Index = () => {
               <Link to="/products" className="text-sm text-primary hover:underline">{t("section.viewAll")}</Link>
             </div>
           </ScrollReveal>
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-          >
-            {visibleProducts.map((p, i) => (
-              <motion.div key={p.id} variants={staggerItem}>
-                <ProductCard product={p} index={i} />
+          {loading ? (
+            <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
+          ) : (
+            <>
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
+                {visibleProducts.map((p, i) => (
+                  <motion.div key={p.id} variants={staggerItem}>
+                    <ProductCard product={p} index={i} />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
-          {visibleCount < products.length && (
-            <div className="text-center mt-8">
-              <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisibleCount((c) => Math.min(c + 8, products.length))}>
-                {t("section.loadMore")} ({products.length - visibleCount} {t("section.remaining")})
-              </Button>
-            </div>
+              {visibleCount < products.length && (
+                <div className="text-center mt-8">
+                  <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisibleCount((c) => Math.min(c + 8, products.length))}>
+                    {t("section.loadMore")} ({products.length - visibleCount} {t("section.remaining")})
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -269,26 +282,32 @@ const Index = () => {
               <Link to="/products?promo=true" className="text-sm text-primary hover:underline">{t("section.viewAll")}</Link>
             </div>
           </ScrollReveal>
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-          >
-            {promoProducts.map((p, i) => (
-              <motion.div key={p.id} variants={staggerItem}>
-                <ProductCard product={p} index={i} />
+          {loading ? (
+            <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
+          ) : promoProducts.length > 0 ? (
+            <>
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
+                {promoProducts.map((p, i) => (
+                  <motion.div key={p.id} variants={staggerItem}>
+                    <ProductCard product={p} index={i} />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
-          {isMobile && visiblePromoCount < allPromoProducts.length && (
-            <div className="text-center mt-8">
-              <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisiblePromoCount((c) => Math.min(c + 4, allPromoProducts.length))}>
-                {t("section.loadMore")} ({allPromoProducts.length - visiblePromoCount} {t("section.remaining")})
-              </Button>
-            </div>
-          )}
+              {isMobile && visiblePromoCount < allPromoProducts.length && (
+                <div className="text-center mt-8">
+                  <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisiblePromoCount((c) => Math.min(c + 4, allPromoProducts.length))}>
+                    {t("section.loadMore")} ({allPromoProducts.length - visiblePromoCount} {t("section.remaining")})
+                  </Button>
+                </div>
+              )}
+            </>
+          ) : null}
         </div>
       </section>
 
