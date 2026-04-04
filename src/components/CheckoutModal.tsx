@@ -22,7 +22,7 @@ interface CheckoutModalProps {
 
 type DeliveryMethod = "home" | "office";
 
-const ADMIN_PHONE = "213XXXXXXXXX";
+const ADMIN_PHONE = "213772061398";
 
 const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: CheckoutModalProps) => {
   const [singleQuantity, setSingleQuantity] = useState(1);
