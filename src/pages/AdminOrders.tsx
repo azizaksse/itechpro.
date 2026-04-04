@@ -51,16 +51,19 @@ const AdminOrders = () => {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     const { data } = await supabase
       .from("orders")
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setOrders(data as Order[]);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+
+  // Realtime: auto-add new orders with sound notification
+  useOrderNotifications(fetchOrders);
 
   const fetchItems = async (orderId: string) => {
     if (orderItems[orderId]) return;
