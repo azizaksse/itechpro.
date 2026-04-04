@@ -543,6 +543,7 @@ ${checkoutItems.map(item => `• ${item.product.nameAr} × ${item.quantity}`).jo
                 </motion.form>
               )}
             </AnimatePresence>
+            </div>
           </motion.div>
         </motion.div>
       )}
