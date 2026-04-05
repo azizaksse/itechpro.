@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingCart, Package, LogOut } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, LogOut, BarChart3, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -18,6 +18,8 @@ const items = [
   { title: "نظرة عامة", url: "/admin", icon: LayoutDashboard },
   { title: "الطلبات", url: "/admin/orders", icon: ShoppingCart },
   { title: "المنتجات", url: "/admin/products", icon: Package },
+  { title: "التقارير", url: "/admin/reports", icon: BarChart3 },
+  { title: "الأعضاء", url: "/admin/members", icon: Users },
 ];
 
 const AdminSidebar = () => {
