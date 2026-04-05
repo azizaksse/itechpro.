@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingCart, Package, LogOut } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, LogOut, BarChart3, Users } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
