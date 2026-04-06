@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { categories, formatPrice } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit2, Trash2, Search, Package, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, Package, Loader2, Monitor, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Laptop, Keyboard, Mouse, Headphones, Cable, Video, MonitorDot, MemoryStick, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -27,6 +27,25 @@ interface DBProduct {
   is_promo: boolean;
   created_at: string;
 }
+
+const iconMap: Record<string, any> = {
+  "Monitor": Monitor,
+  "Laptop": Laptop,
+  "Cpu": Cpu,
+  "Zap": Zap,
+  "MemoryStick": MemoryStick,
+  "HardDrive": HardDrive,
+  "CircuitBoard": CircuitBoard,
+  "Battery": Battery,
+  "Box": Box,
+  "Fan": Fan,
+  "MonitorDot": MonitorDot,
+  "Keyboard": Keyboard,
+  "Mouse": Mouse,
+  "Headphones": Headphones,
+  "Cable": Cable,
+  "Video": Video,
+};
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<DBProduct[]>([]);
@@ -64,11 +83,23 @@ const AdminProducts = () => {
     fetchProducts();
   };
 
+  // Count products per category
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
   const filtered = products.filter((p) => {
     const matchSearch = !search || p.name_ar.includes(search) || p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCategory === "all" || p.category === filterCategory;
     return matchSearch && matchCat;
   });
+
+  // Only show categories that have products
+  const activeCategories = categories.filter((c) => categoryCounts[c.id] > 0);
 
   return (
     <AdminLayout>
@@ -80,27 +111,63 @@ const AdminProducts = () => {
           </Button>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              placeholder="بحث بالاسم أو العلامة..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-secondary/50 border border-secondary text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-            />
+        {/* Category Cards */}
+        {!loading && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {/* All products card */}
+            <button
+              onClick={() => setFilterCategory("all")}
+              className={`relative rounded-xl p-4 border transition-all duration-200 text-right group ${
+                filterCategory === "all"
+                  ? "border-primary bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.15)]"
+                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
+                filterCategory === "all" ? "bg-primary/20" : "bg-secondary"
+              }`}>
+                <Layers size={18} className={filterCategory === "all" ? "text-primary" : "text-muted-foreground"} />
+              </div>
+              <p className={`text-sm font-semibold ${filterCategory === "all" ? "text-primary" : "text-foreground"}`}>الكل</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{products.length} منتج</p>
+            </button>
+
+            {activeCategories.map((cat) => {
+              const Icon = iconMap[cat.icon] || Package;
+              const count = categoryCounts[cat.id] || 0;
+              const isActive = filterCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setFilterCategory(cat.id)}
+                  className={`relative rounded-xl p-4 border transition-all duration-200 text-right group ${
+                    isActive
+                      ? "border-primary bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.15)]"
+                      : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
+                    isActive ? "bg-primary/20" : "bg-secondary"
+                  }`}>
+                    <Icon size={18} className={isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary/70"} />
+                  </div>
+                  <p className={`text-sm font-semibold truncate ${isActive ? "text-primary" : "text-foreground"}`}>{cat.nameAr}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{count} منتج</p>
+                </button>
+              );
+            })}
           </div>
-          <select
-            value={filterCategory}
-            onChange={(e) => setFilterCategory(e.target.value)}
-            className="px-4 py-2.5 rounded-xl bg-secondary/50 border border-secondary text-sm appearance-none focus:outline-none focus:border-primary/50 transition-all"
-          >
-            <option value="all">كل الفئات</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.nameAr}</option>
-            ))}
-          </select>
+        )}
+
+        {/* Search */}
+        <div className="relative">
+          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            placeholder="بحث بالاسم أو العلامة..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-secondary/50 border border-secondary text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+          />
         </div>
 
         {/* Products Table */}
