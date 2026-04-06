@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Cpu, MonitorDot, HardDrive, CircuitBoard, Battery, Box, Fan, Plus, Trash2, Zap } from "lucide-react";
+import { Cpu, MonitorDot, HardDrive, CircuitBoard, Battery, Box, Fan, Plus, Trash2, Zap, Keyboard, Mouse, Headphones } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { products, formatPrice } from "@/data/products";
@@ -22,6 +22,10 @@ const initialSlots: BuildSlot[] = [
   { id: "psu", nameAr: "مزود الطاقة", icon: Battery, category: "power-supplies", selected: null },
   { id: "case", nameAr: "الصندوق", icon: Box, category: "cases", selected: null },
   { id: "cooling", nameAr: "التبريد", icon: Fan, category: "cooling", selected: null },
+  { id: "monitor", nameAr: "الشاشة", icon: MonitorDot, category: "monitors", selected: null },
+  { id: "keyboard", nameAr: "لوحة المفاتيح", icon: Keyboard, category: "keyboards", selected: null },
+  { id: "mouse", nameAr: "الفأرة", icon: Mouse, category: "mice", selected: null },
+  { id: "headset", nameAr: "سماعة الرأس", icon: Headphones, category: "headsets", selected: null },
 ];
 
 const PCBuilder = () => {
