@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/products";
 import { X, Upload, Trash2, Loader2, Save } from "lucide-react";
+import SpecsField from "./SpecsField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +24,8 @@ interface Product {
   stock_quantity: number;
   is_active: boolean;
   is_new: boolean;
-  is_promo: boolean;
+    is_promo: boolean;
+    specs?: Record<string, any> | null;
 }
 
 interface EditProductModalProps {
@@ -49,6 +51,7 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
     is_promo: false,
   });
   const [images, setImages] = useState<string[]>([]);
+  const [specs, setSpecs] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -66,6 +69,12 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
         is_promo: product.is_promo,
       });
       setImages(product.images?.length ? product.images : product.image ? [product.image] : []);
+      const rawSpecs = product.specs && typeof product.specs === 'object' && !Array.isArray(product.specs) ? product.specs : {};
+      const parsedSpecs: Record<string, string> = {};
+      for (const [k, v] of Object.entries(rawSpecs)) {
+        parsedSpecs[k] = String(v ?? '');
+      }
+      setSpecs(parsedSpecs);
       setErrors({});
     }
   }, [product]);
@@ -132,6 +141,7 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
           is_active: form.is_active,
           is_new: form.is_new,
           is_promo: form.is_promo,
+          specs: Object.keys(specs).length > 0 ? specs : {},
         })
         .eq("id", product.id);
 
@@ -245,6 +255,9 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
             <Input type="number" value={form.stock_quantity} onChange={(e) => updateField("stock_quantity", e.target.value)} dir="ltr" min="0" />
             {errors.stock_quantity && <p className="text-xs text-destructive">{errors.stock_quantity}</p>}
           </div>
+
+          {/* Specs */}
+          <SpecsField specs={specs} onChange={setSpecs} />
 
           {/* Toggles */}
           <div className="space-y-3">
