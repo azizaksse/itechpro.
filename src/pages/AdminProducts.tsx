@@ -98,8 +98,8 @@ const AdminProducts = () => {
     return matchSearch && matchCat;
   });
 
-  // Only show categories that have products
-  const activeCategories = categories.filter((c) => categoryCounts[c.id] > 0);
+  // Show all categories
+  const allCategories = categories;
 
   return (
     <AdminLayout>
