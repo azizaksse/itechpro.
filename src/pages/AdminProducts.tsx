@@ -132,7 +132,7 @@ const AdminProducts = () => {
               <p className="text-xs text-muted-foreground mt-0.5">{products.length} منتج</p>
             </button>
 
-            {activeCategories.map((cat) => {
+            {allCategories.map((cat) => {
               const Icon = iconMap[cat.icon] || Package;
               const count = categoryCounts[cat.id] || 0;
               const isActive = filterCategory === cat.id;
