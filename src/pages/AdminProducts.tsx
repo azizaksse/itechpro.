@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { categories, formatPrice } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit2, Trash2, Search, Package, Loader2, Monitor, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Laptop, Keyboard, Mouse, Headphones, Cable, Video, MonitorDot, MemoryStick, Layers } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, Package, Loader2, Monitor, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Laptop, Keyboard, Mouse, Headphones, Cable, Video, MonitorDot, MemoryStick, Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -54,6 +54,7 @@ const AdminProducts = () => {
   const [filterCategory, setFilterCategory] = useState("all");
   const [showAdd, setShowAdd] = useState(false);
   const [editProduct, setEditProduct] = useState<DBProduct | null>(null);
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -83,7 +84,15 @@ const AdminProducts = () => {
     fetchProducts();
   };
 
-  // Count products per category
+  const toggleCollapse = (catId: string) => {
+    setCollapsedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(catId)) next.delete(catId);
+      else next.add(catId);
+      return next;
+    });
+  };
+
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     products.forEach((p) => {
@@ -98,8 +107,21 @@ const AdminProducts = () => {
     return matchSearch && matchCat;
   });
 
-  // Show all categories
-  const allCategories = categories;
+  // Group filtered products by category
+  const groupedProducts = useMemo(() => {
+    const groups: { cat: typeof categories[0]; products: DBProduct[] }[] = [];
+    
+    const catsToShow = filterCategory === "all" ? categories : categories.filter(c => c.id === filterCategory);
+    
+    catsToShow.forEach(cat => {
+      const catProducts = filtered.filter(p => p.category === cat.id);
+      if (catProducts.length > 0) {
+        groups.push({ cat, products: catProducts });
+      }
+    });
+    
+    return groups;
+  }, [filtered, filterCategory]);
 
   return (
     <AdminLayout>
@@ -111,28 +133,27 @@ const AdminProducts = () => {
           </Button>
         </div>
 
-        {/* Category Cards */}
+        {/* Category Filter Cards */}
         {!loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-            {/* All products card */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
             <button
               onClick={() => setFilterCategory("all")}
-              className={`relative rounded-xl p-4 border transition-all duration-200 text-right group ${
+              className={`rounded-xl p-3 border transition-all duration-200 text-right group ${
                 filterCategory === "all"
-                  ? "border-primary bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.15)]"
+                  ? "border-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                   : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
               }`}
             >
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-1.5 ${
                 filterCategory === "all" ? "bg-primary/20" : "bg-secondary"
               }`}>
-                <Layers size={18} className={filterCategory === "all" ? "text-primary" : "text-muted-foreground"} />
+                <Layers size={16} className={filterCategory === "all" ? "text-primary" : "text-muted-foreground"} />
               </div>
-              <p className={`text-sm font-semibold ${filterCategory === "all" ? "text-primary" : "text-foreground"}`}>الكل</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{products.length} منتج</p>
+              <p className={`text-xs font-semibold ${filterCategory === "all" ? "text-primary" : "text-foreground"}`}>الكل</p>
+              <p className="text-[10px] text-muted-foreground">{products.length} منتج</p>
             </button>
 
-            {allCategories.map((cat) => {
+            {categories.map((cat) => {
               const Icon = iconMap[cat.icon] || Package;
               const count = categoryCounts[cat.id] || 0;
               const isActive = filterCategory === cat.id;
@@ -140,19 +161,19 @@ const AdminProducts = () => {
                 <button
                   key={cat.id}
                   onClick={() => setFilterCategory(cat.id)}
-                  className={`relative rounded-xl p-4 border transition-all duration-200 text-right group ${
+                  className={`rounded-xl p-3 border transition-all duration-200 text-right group ${
                     isActive
-                      ? "border-primary bg-primary/10 shadow-[0_0_15px_hsl(var(--primary)/0.15)]"
+                      ? "border-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
                       : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
                   }`}
                 >
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-1.5 ${
                     isActive ? "bg-primary/20" : "bg-secondary"
                   }`}>
-                    <Icon size={18} className={isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary/70"} />
+                    <Icon size={16} className={isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary/70"} />
                   </div>
-                  <p className={`text-sm font-semibold truncate ${isActive ? "text-primary" : "text-foreground"}`}>{cat.nameAr}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{count} منتج</p>
+                  <p className={`text-xs font-semibold truncate ${isActive ? "text-primary" : "text-foreground"}`}>{cat.nameAr}</p>
+                  <p className="text-[10px] text-muted-foreground">{count} منتج</p>
                 </button>
               );
             })}
@@ -170,91 +191,124 @@ const AdminProducts = () => {
           />
         </div>
 
-        {/* Products Table */}
+        {/* Products Grouped by Category */}
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin text-muted-foreground" size={32} />
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-right py-3 px-3 font-medium">المنتج</th>
-                  <th className="text-right py-3 px-3 font-medium hidden md:table-cell">الفئة</th>
-                  <th className="text-right py-3 px-3 font-medium">السعر</th>
-                  <th className="text-right py-3 px-3 font-medium hidden sm:table-cell">المخزون</th>
-                  <th className="text-right py-3 px-3 font-medium hidden sm:table-cell">الحالة</th>
-                  <th className="text-right py-3 px-3 font-medium">إجراءات</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((product) => {
-                  const cat = categories.find((c) => c.id === product.category);
-                  return (
-                    <tr key={product.id} className="border-b border-border/50 hover:bg-secondary/20 transition-colors">
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-3">
-                          {product.image ? (
-                            <img src={product.image} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-                              <Package size={16} className="text-muted-foreground" />
+        ) : groupedProducts.length > 0 ? (
+          <div className="space-y-4">
+            {groupedProducts.map(({ cat, products: catProducts }) => {
+              const Icon = iconMap[cat.icon] || Package;
+              const isCollapsed = collapsedCategories.has(cat.id);
+              return (
+                <div key={cat.id} className="rounded-xl border border-border bg-card overflow-hidden">
+                  {/* Category Header */}
+                  <button
+                    onClick={() => toggleCollapse(cat.id)}
+                    className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Icon size={18} className="text-primary" />
+                      </div>
+                      <div className="text-right">
+                        <h3 className="font-bold text-sm">{cat.nameAr}</h3>
+                        <p className="text-xs text-muted-foreground">{catProducts.length} منتج</p>
+                      </div>
+                    </div>
+                    {isCollapsed ? <ChevronDown size={18} className="text-muted-foreground" /> : <ChevronUp size={18} className="text-muted-foreground" />}
+                  </button>
+
+                  {/* Products Grid */}
+                  {!isCollapsed && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-4 pt-0">
+                      {catProducts.map((product) => (
+                        <div
+                          key={product.id}
+                          className="rounded-xl border border-border bg-secondary/20 hover:border-primary/30 transition-all duration-200 overflow-hidden group"
+                        >
+                          {/* Product Image */}
+                          <div className="relative aspect-square bg-secondary/50">
+                            {product.image ? (
+                              <img src={product.image} alt={product.name_ar} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Package size={32} className="text-muted-foreground/40" />
+                              </div>
+                            )}
+                            {/* Status badges */}
+                            <div className="absolute top-2 right-2 flex flex-col gap-1">
+                              {product.is_new && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-primary/90 text-primary-foreground">جديد</span>
+                              )}
+                              {product.is_promo && (
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/90 text-white">عرض</span>
+                              )}
                             </div>
-                          )}
-                          <div className="min-w-0">
-                            <p className="font-medium truncate max-w-[200px]">{product.name_ar}</p>
-                            <p className="text-xs text-muted-foreground">{product.brand}</p>
+                            {/* Active/Hidden indicator */}
+                            <div className="absolute top-2 left-2">
+                              <button
+                                onClick={() => toggleActive(product.id, product.is_active)}
+                                className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${
+                                  product.is_active ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"
+                                }`}
+                              >
+                                {product.is_active ? "نشط" : "مخفي"}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Product Info */}
+                          <div className="p-3 space-y-2">
+                            <div>
+                              <p className="font-semibold text-sm truncate">{product.name_ar}</p>
+                              <p className="text-xs text-muted-foreground truncate">{product.brand}</p>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="text-primary font-bold text-sm">{formatPrice(product.price)}</span>
+                                {product.old_price && (
+                                  <span className="block text-[10px] text-muted-foreground line-through">{formatPrice(product.old_price)}</span>
+                                )}
+                              </div>
+                              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${
+                                product.stock_quantity > 0 ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
+                              }`}>
+                                المخزون: {product.stock_quantity}
+                              </span>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex items-center gap-1.5 pt-1 border-t border-border/50">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex-1 h-8 text-xs gap-1 hover:bg-primary/10 hover:text-primary"
+                                onClick={() => setEditProduct(product)}
+                              >
+                                <Edit2 size={12} /> تعديل
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-xs hover:bg-destructive/10 hover:text-destructive"
+                                onClick={() => handleDelete(product.id)}
+                              >
+                                <Trash2 size={12} />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                      </td>
-                      <td className="py-3 px-3 hidden md:table-cell text-muted-foreground">{cat?.nameAr || product.category}</td>
-                      <td className="py-3 px-3">
-                        <span className="text-primary font-semibold">{formatPrice(product.price)}</span>
-                        {product.old_price && (
-                          <span className="block text-xs text-muted-foreground line-through">{formatPrice(product.old_price)}</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 hidden sm:table-cell">
-                        <span className={`text-xs font-medium ${product.stock_quantity > 0 ? "text-green-400" : "text-red-400"}`}>
-                          {product.stock_quantity}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 hidden sm:table-cell">
-                        <button
-                          onClick={() => toggleActive(product.id, product.is_active)}
-                          className={`text-xs px-2 py-0.5 rounded-full cursor-pointer transition-colors ${
-                            product.is_active ? "bg-green-500/20 text-green-400" : "bg-red-500/20 text-red-400"
-                          }`}
-                        >
-                          {product.is_active ? "نشط" : "مخفي"}
-                        </button>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div className="flex items-center gap-1">
-                          <button
-                            className="p-1.5 rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
-                            onClick={() => setEditProduct(product)}
-                          >
-                            <Edit2 size={14} />
-                          </button>
-                          <button
-                            className="p-1.5 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDelete(product.id)}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        )}
-
-        {!loading && filtered.length === 0 && (
+        ) : (
           <div className="text-center py-16">
             <Package size={48} className="mx-auto text-muted-foreground mb-3" />
             <p className="text-muted-foreground">لا توجد منتجات بعد</p>
