@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { categories } from "@/data/products";
 import { X, Upload, Trash2, Loader2, Plus } from "lucide-react";
+import SpecsField from "./SpecsField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
     is_promo: false,
   });
   const [images, setImages] = useState<string[]>([]);
+  const [specs, setSpecs] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const updateField = (field: string, value: string | boolean) => {
@@ -101,6 +103,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
         is_active: form.is_active,
         is_new: form.is_new,
         is_promo: form.is_promo,
+        specs: Object.keys(specs).length > 0 ? specs : {},
       });
 
       if (error) throw error;
@@ -110,6 +113,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
       onClose();
       setForm({ name: "", description: "", price: "", old_price: "", category: "accessories", brand: "", stock_quantity: "1", is_active: true, is_new: false, is_promo: false });
       setImages([]);
+      setSpecs({});
       setErrors({});
     } catch (err: any) {
       toast.error("فشل إضافة المنتج: " + err.message);
@@ -249,6 +253,9 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
             />
             {errors.stock_quantity && <p className="text-xs text-destructive">{errors.stock_quantity}</p>}
           </div>
+
+          {/* Specs */}
+          <SpecsField specs={specs} onChange={setSpecs} />
 
           {/* Toggles */}
           <div className="space-y-3">
