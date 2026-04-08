@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { categories, formatPrice } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit2, Trash2, Search, Package, Loader2, Monitor, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Laptop, Keyboard, Mouse, Headphones, Cable, Video, MonitorDot, MemoryStick, Layers, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Edit2, Trash2, Search, Package, Loader2, Monitor, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Laptop, Keyboard, Mouse, Headphones, Cable, Video, MonitorDot, MemoryStick, Layers, ChevronDown, ChevronUp, Usb, Wifi, Disc3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
