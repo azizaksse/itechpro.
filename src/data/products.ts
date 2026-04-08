@@ -39,6 +39,10 @@ export const categories: Category[] = [
   { id: "headsets", nameAr: "سماعات الرأس", icon: "Headphones", count: 8 },
   { id: "accessories", nameAr: "الإكسسوارات", icon: "Cable", count: 20 },
   { id: "streaming", nameAr: "معدات البث", icon: "Video", count: 5 },
+  { id: "flash-disk", nameAr: "فلاش ديسك", icon: "Usb", count: 0 },
+  { id: "connectivity", nameAr: "أجهزة الاتصال", icon: "Wifi", count: 0 },
+  { id: "cd-dvd-drives", nameAr: "محركات CD & DVD", icon: "Disc3", count: 0 },
+  { id: "cables", nameAr: "الكابلات", icon: "Cable", count: 0 },
 ];
 
 export const products: Product[] = [
