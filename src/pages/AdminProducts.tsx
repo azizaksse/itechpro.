@@ -45,6 +45,9 @@ const iconMap: Record<string, any> = {
   "Headphones": Headphones,
   "Cable": Cable,
   "Video": Video,
+  "Usb": Usb,
+  "Wifi": Wifi,
+  "Disc3": Disc3,
 };
 
 const AdminProducts = () => {
