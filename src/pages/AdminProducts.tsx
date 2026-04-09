@@ -1,329 +1,233 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { categories, formatPrice } from "@/data/products";
-import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit2, Trash2, Search, Package, Loader2, Monitor, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Laptop, Keyboard, Mouse, Headphones, Cable, Video, MonitorDot, MemoryStick, Layers, ChevronDown, ChevronUp, Usb, Wifi, Disc3 } from "lucide-react";
+import { 
+  Plus, Edit2, Trash2, Search, Package, Loader2, 
+  Layers, ShoppingBag, Eye, ToggleLeft, ToggleRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AddProductModal from "@/components/admin/AddProductModal";
 import EditProductModal from "@/components/admin/EditProductModal";
-
-interface DBProduct {
-  id: string;
-  name: string;
-  name_ar: string;
-  description: string | null;
-  description_ar: string | null;
-  price: number;
-  old_price: number | null;
-  category: string;
-  brand: string;
-  image: string | null;
-  images: string[] | null;
-  in_stock: boolean;
-  stock_quantity: number;
-  is_active: boolean;
-  is_new: boolean;
-  is_promo: boolean;
-  created_at: string;
-}
-
-const iconMap: Record<string, any> = {
-  "Monitor": Monitor,
-  "Laptop": Laptop,
-  "Cpu": Cpu,
-  "Zap": Zap,
-  "MemoryStick": MemoryStick,
-  "HardDrive": HardDrive,
-  "CircuitBoard": CircuitBoard,
-  "Battery": Battery,
-  "Box": Box,
-  "Fan": Fan,
-  "MonitorDot": MonitorDot,
-  "Keyboard": Keyboard,
-  "Mouse": Mouse,
-  "Headphones": Headphones,
-  "Cable": Cable,
-  "Video": Video,
-  "Usb": Usb,
-  "Wifi": Wifi,
-  "Disc3": Disc3,
-};
+import ItemImage from "@/components/ItemImage";
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState<DBProduct[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [showAdd, setShowAdd] = useState(false);
-  const [editProduct, setEditProduct] = useState<DBProduct | null>(null);
-  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set());
+  const [editProduct, setEditProduct] = useState<any>(null);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const products = useQuery(api.products.getProducts);
+  const orders = useQuery(api.orders.getOrders);
+  const removeProduct = useMutation(api.products.deleteProduct);
+  const updateProductMutation = useMutation(api.products.updateProduct);
+  const deleteAllMutation = useMutation(api.products.deleteAllProducts);
 
-    if (data) setProducts(data as unknown as DBProduct[]);
-    if (error) toast.error("فشل تحميل المنتجات");
-    setLoading(false);
-  };
+  const stats = useMemo(() => {
+    if (!products) return { total: 0, active: 0, lowStock: 0, totalOrders: 0 };
+    return {
+      total: products.length,
+      active: products.filter(p => p.isActive).length,
+      lowStock: products.filter(p => p.stockQuantity < 5).length,
+      totalOrders: orders?.length || 0,
+    };
+  }, [products, orders]);
 
-  useEffect(() => { fetchProducts(); }, []);
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("هل تريد حذف هذا المنتج؟")) return;
-    const { error } = await supabase.from("products").delete().eq("id", id);
-    if (error) { toast.error("فشل الحذف"); return; }
-    toast.success("تم حذف المنتج");
-    fetchProducts();
-  };
-
-  const toggleActive = async (id: string, current: boolean) => {
-    const { error } = await supabase.from("products").update({ is_active: !current }).eq("id", id);
-    if (error) { toast.error("فشل التحديث"); return; }
-    fetchProducts();
-  };
-
-  const toggleCollapse = (catId: string) => {
-    setCollapsedCategories(prev => {
-      const next = new Set(prev);
-      if (next.has(catId)) next.delete(catId);
-      else next.add(catId);
-      return next;
-    });
-  };
-
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    products.forEach((p) => {
-      counts[p.category] = (counts[p.category] || 0) + 1;
-    });
-    return counts;
-  }, [products]);
-
-  const filtered = products.filter((p) => {
-    const matchSearch = !search || p.name_ar.includes(search) || p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase());
+  const filtered = (products || []).filter((p) => {
+    const matchSearch = !search || 
+      (p.nameAr || "").includes(search) || 
+      (p.name || "").toLowerCase().includes(search.toLowerCase()) || 
+      (p.brand || "").toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCategory === "all" || p.category === filterCategory;
     return matchSearch && matchCat;
   });
 
-  // Group filtered products by category
-  const groupedProducts = useMemo(() => {
-    const groups: { cat: typeof categories[0]; products: DBProduct[] }[] = [];
-    
-    const catsToShow = filterCategory === "all" ? categories : categories.filter(c => c.id === filterCategory);
-    
-    catsToShow.forEach(cat => {
-      const catProducts = filtered.filter(p => p.category === cat.id);
-      if (catProducts.length > 0) {
-        groups.push({ cat, products: catProducts });
-      }
-    });
-    
-    return groups;
-  }, [filtered, filterCategory]);
+  const handleDelete = async (id: any) => {
+    if (!confirm("هل تريد حذف هذا المنتج؟")) return;
+    try {
+      await removeProduct({ id });
+      toast.success("تم حذف المنتج بنجاح");
+    } catch (e) {
+      toast.error("فشل حذف المنتج");
+    }
+  };
+
+  const toggleActive = async (product: any) => {
+    try {
+      const { _id, _creationTime, ...updateData } = product;
+      await updateProductMutation({
+        id: _id,
+        ...updateData,
+        isActive: !product.isActive,
+      });
+      toast.success(product.isActive ? "تم تعطيل المنتج" : "تم تفعيل المنتج");
+    } catch (e) {
+      toast.error("فشل تحديث الحالة");
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    if (!confirm(`⚠️ هذا سيحذف جميع المنتجات (${products?.length || 0}). هل أنت متأكد؟`)) return;
+    try {
+      const count = await deleteAllMutation({});
+      toast.success(`تم حذف ${count} منتج بنجاح`);
+    } catch (e) {
+      toast.error("فشل حذف المنتجات");
+    }
+  };
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <h2 className="text-2xl font-bold">إدارة المنتجات</h2>
-          <Button variant="default" size="sm" className="gap-1" onClick={() => setShowAdd(true)}>
-            <Plus size={16} /> إضافة منتج
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            { label: "إجمالي المنتجات", value: stats.total, icon: Package, color: "text-primary", bg: "bg-primary/10" },
+            { label: "النشطة", value: stats.active, icon: Eye, color: "text-green-400", bg: "bg-green-400/10" },
+            { label: "نقص المخزون", value: stats.lowStock, icon: Layers, color: "text-orange-400", bg: "bg-orange-400/10" },
+            { label: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingBag, color: "text-primary", bg: "bg-primary/10" },
+          ].map((stat, i) => (
+            <div key={i} className="glass-card rounded-2xl p-6 border border-border/50 shadow-sm flex flex-col gap-4">
+              <div className={`${stat.bg} ${stat.color} w-10 h-10 rounded-2xl flex items-center justify-center`}>
+                <stat.icon size={20} />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
+                <p className="text-2xl font-bold mt-1 tracking-tight">{stat.value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Actions Bar */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 md:w-80">
+              <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input 
+                placeholder="ابحث عن اسم أو ماركة..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full bg-card border border-border rounded-2xl h-11 pr-10 pl-4 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-sm"
+              />
+            </div>
+            <select 
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="bg-card border border-border rounded-2xl h-11 px-4 text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-sm cursor-pointer"
+            >
+              <option value="all">كل الأصناف</option>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.nameAr}</option>)}
+            </select>
+          </div>
+          <Button 
+            variant="default" 
+            className="rounded-2xl h-11 px-6 bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-lg shadow-primary/20 gap-2 w-full md:w-auto"
+            onClick={() => setShowAdd(true)}
+          >
+            <Plus size={18} />
+            <span>إضافة منتج جديد</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="rounded-2xl h-11 px-6 border-destructive/40 text-destructive hover:bg-destructive/10 transition-all gap-2 w-full md:w-auto"
+            onClick={handleDeleteAll}
+            disabled={!products || products.length === 0}
+          >
+            <Trash2 size={16} />
+            <span>حذف كل المنتجات</span>
           </Button>
         </div>
 
-        {/* Category Filter Cards */}
-        {!loading && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2.5">
-            <button
-              onClick={() => setFilterCategory("all")}
-              className={`rounded-xl p-3 border transition-all duration-200 text-right group ${
-                filterCategory === "all"
-                  ? "border-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
-                  : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
-              }`}
-            >
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-1.5 ${
-                filterCategory === "all" ? "bg-primary/20" : "bg-secondary"
-              }`}>
-                <Layers size={16} className={filterCategory === "all" ? "text-primary" : "text-muted-foreground"} />
-              </div>
-              <p className={`text-xs font-semibold ${filterCategory === "all" ? "text-primary" : "text-foreground"}`}>الكل</p>
-              <p className="text-[10px] text-muted-foreground">{products.length} منتج</p>
-            </button>
-
-            {categories.map((cat) => {
-              const Icon = iconMap[cat.icon] || Package;
-              const count = categoryCounts[cat.id] || 0;
-              const isActive = filterCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setFilterCategory(cat.id)}
-                  className={`rounded-xl p-3 border transition-all duration-200 text-right group ${
-                    isActive
-                      ? "border-primary bg-primary/10 shadow-[0_0_12px_hsl(var(--primary)/0.15)]"
-                      : "border-border bg-card hover:border-primary/40 hover:bg-primary/5"
-                  }`}
-                >
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-1.5 ${
-                    isActive ? "bg-primary/20" : "bg-secondary"
-                  }`}>
-                    <Icon size={16} className={isActive ? "text-primary" : "text-muted-foreground group-hover:text-primary/70"} />
-                  </div>
-                  <p className={`text-xs font-semibold truncate ${isActive ? "text-primary" : "text-foreground"}`}>{cat.nameAr}</p>
-                  <p className="text-[10px] text-muted-foreground">{count} منتج</p>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Search */}
-        <div className="relative">
-          <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            placeholder="بحث بالاسم أو العلامة..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pr-10 pl-4 py-2.5 rounded-xl bg-secondary/50 border border-secondary text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-          />
-        </div>
-
-        {/* Products Grouped by Category */}
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin text-muted-foreground" size={32} />
-          </div>
-        ) : groupedProducts.length > 0 ? (
-          <div className="space-y-4">
-            {groupedProducts.map(({ cat, products: catProducts }) => {
-              const Icon = iconMap[cat.icon] || Package;
-              const isCollapsed = collapsedCategories.has(cat.id);
-              return (
-                <div key={cat.id} className="rounded-xl border border-border bg-card overflow-hidden">
-                  {/* Category Header */}
-                  <button
-                    onClick={() => toggleCollapse(cat.id)}
-                    className="w-full flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Icon size={18} className="text-primary" />
-                      </div>
-                      <div className="text-right">
-                        <h3 className="font-bold text-sm">{cat.nameAr}</h3>
-                        <p className="text-xs text-muted-foreground">{catProducts.length} منتج</p>
-                      </div>
-                    </div>
-                    {isCollapsed ? <ChevronDown size={18} className="text-muted-foreground" /> : <ChevronUp size={18} className="text-muted-foreground" />}
-                  </button>
-
-                  {/* Products Grid */}
-                  {!isCollapsed && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 p-4 pt-0">
-                      {catProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          className="rounded-xl border border-border bg-secondary/20 hover:border-primary/30 transition-all duration-200 overflow-hidden group"
-                        >
-                          {/* Product Image */}
-                          <div className="relative aspect-square bg-secondary/50">
-                            {product.image ? (
-                              <img src={product.image} alt={product.name_ar} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Package size={32} className="text-muted-foreground/40" />
-                              </div>
-                            )}
-                            {/* Status badges */}
-                            <div className="absolute top-2 right-2 flex flex-col gap-1">
-                              {product.is_new && (
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-primary/90 text-primary-foreground">جديد</span>
-                              )}
-                              {product.is_promo && (
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-500/90 text-white">عرض</span>
-                              )}
-                            </div>
-                            {/* Active/Hidden indicator */}
-                            <div className="absolute top-2 left-2">
-                              <button
-                                onClick={() => toggleActive(product.id, product.is_active)}
-                                className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${
-                                  product.is_active ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-red-500/20 text-red-400 border border-red-500/30"
-                                }`}
-                              >
-                                {product.is_active ? "نشط" : "مخفي"}
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Product Info */}
-                          <div className="p-3 space-y-2">
-                            <div>
-                              <p className="font-semibold text-sm truncate">{product.name_ar}</p>
-                              <p className="text-xs text-muted-foreground truncate">{product.brand}</p>
-                            </div>
-                            
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="text-primary font-bold text-sm">{formatPrice(product.price)}</span>
-                                {product.old_price && (
-                                  <span className="block text-[10px] text-muted-foreground line-through">{formatPrice(product.old_price)}</span>
-                                )}
-                              </div>
-                              <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${
-                                product.stock_quantity > 0 ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"
-                              }`}>
-                                المخزون: {product.stock_quantity}
-                              </span>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="flex items-center gap-1.5 pt-1 border-t border-border/50">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="flex-1 h-8 text-xs gap-1 hover:bg-primary/10 hover:text-primary"
-                                onClick={() => setEditProduct(product)}
-                              >
-                                <Edit2 size={12} /> تعديل
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-2 text-xs hover:bg-destructive/10 hover:text-destructive"
-                                onClick={() => handleDelete(product.id)}
-                              >
-                                <Trash2 size={12} />
-                              </Button>
-                            </div>
-                          </div>
+        {/* Products Table */}
+        <div className="glass-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right">
+              <thead>
+                <tr className="border-b border-secondary/5">
+                  <th className="p-5 text-xs font-bold text-muted-foreground">المنتج</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">الفئة</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">الماركة</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">السعر</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">المخزون</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">الحالة</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">الإجراءات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-secondary/5 font-medium">
+                {products === undefined ? (
+                  <tr><td colSpan={7} className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></td></tr>
+                ) : filtered.map((p) => (
+                  <tr key={p._id} className="hover:bg-secondary/30 transition-colors group">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-secondary/30 flex items-center justify-center overflow-hidden shrink-0 border border-secondary/10 shadow-sm">
+                          <ItemImage src={p.image} className="w-full h-full object-cover" />
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                        <p className="text-sm font-bold line-clamp-1">{p.nameAr}</p>
+                      </div>
+                    </td>
+                    <td className="p-4"><span className="text-xs px-3 py-1 bg-secondary/30 rounded-full text-muted-foreground">{categories.find(c => c.id === p.category)?.nameAr || p.category}</span></td>
+                    <td className="p-4 text-xs">{p.brand}</td>
+                    <td className="p-4 text-sm font-black text-primary">{formatPrice(p.price)}</td>
+                    <td className="p-4">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.stockQuantity < 5 ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>
+                        {p.stockQuantity} قطعة
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <button 
+                        onClick={() => toggleActive(p)}
+                        className={`transition-colors ${p.isActive ? "text-[#5D5FEF]" : "text-muted-foreground/30"}`}
+                      >
+                        {p.isActive ? <ToggleRight size={24} /> : <ToggleLeft size={24} />}
+                      </button>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => setEditProduct(p)}
+                          className="p-2 rounded-xl text-muted-foreground hover:bg-primary/10 hover:text-primary transition-all"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(p._id)}
+                          className="p-2 rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <Package size={48} className="mx-auto text-muted-foreground mb-3" />
-            <p className="text-muted-foreground">لا توجد منتجات بعد</p>
-            <Button variant="outline" size="sm" className="mt-3 gap-1" onClick={() => setShowAdd(true)}>
-              <Plus size={14} /> أضف أول منتج
-            </Button>
-          </div>
-        )}
+          {filtered.length === 0 && products !== undefined && (
+            <div className="p-20 text-center">
+              <Package size={48} className="mx-auto text-muted-foreground/20 mb-4" />
+              <p className="text-muted-foreground font-bold">لا توجد منتجات مطابقة للبحث</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      <AddProductModal open={showAdd} onClose={() => setShowAdd(false)} onProductAdded={fetchProducts} />
-      <EditProductModal open={!!editProduct} product={editProduct} onClose={() => setEditProduct(null)} onProductUpdated={fetchProducts} />
+      <AddProductModal 
+        open={showAdd} 
+        onClose={() => setShowAdd(false)} 
+        onProductAdded={() => {}} 
+      />
+      {editProduct && (
+        <EditProductModal 
+          open={!!editProduct} 
+          product={editProduct} 
+          onClose={() => setEditProduct(null)} 
+          onProductUpdated={() => {}} 
+        />
+      )}
     </AdminLayout>
   );
 };

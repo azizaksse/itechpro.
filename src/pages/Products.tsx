@@ -25,13 +25,13 @@ const Products = () => {
 
   const filtered = useMemo(() => {
     let result = [...products];
-    if (search) result = result.filter((p) => p.nameAr.includes(search) || p.name.toLowerCase().includes(search.toLowerCase()));
+    if (search) result = result.filter((p) => p.nameAr.includes(search) || (p.name || "").toLowerCase().includes(search.toLowerCase()));
     if (selectedCategory) result = result.filter((p) => p.category === selectedCategory);
     if (selectedBrand) result = result.filter((p) => p.brand === selectedBrand);
     if (promoParam) result = result.filter((p) => p.isPromo);
     if (sortBy === "price-low") result.sort((a, b) => a.price - b.price);
     if (sortBy === "price-high") result.sort((a, b) => b.price - a.price);
-    if (sortBy === "rating") result.sort((a, b) => b.rating - a.rating);
+    if (sortBy === "rating") result.sort((a, b) => (b.rating || 5) - (a.rating || 5));
     return result;
   }, [products, search, selectedCategory, selectedBrand, sortBy, promoParam]);
 
@@ -98,7 +98,7 @@ const Products = () => {
             <p className="text-sm text-muted-foreground mb-4">{filtered.length} منتج</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filtered.map((p, i) => (
-                <ProductCard key={p.id} product={p} index={i} />
+                <ProductCard key={p._id || p.id} product={p} index={i} />
               ))}
             </div>
             {filtered.length === 0 && (

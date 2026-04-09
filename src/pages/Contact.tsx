@@ -3,8 +3,9 @@ import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, MessageCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/Layout";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const Contact = () => {
   const [name, setName] = useState("");
@@ -12,6 +13,7 @@ const Contact = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const addMessage = useMutation(api.messages.addMessage);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,22 +24,20 @@ const Contact = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.from("contact_messages").insert({
-        name: name.trim(),
-        phone: phone.trim() || null,
-        email: email.trim() || null,
-        message: message.trim(),
+      await addMessage({
+        name,
+        phone: phone || undefined,
+        email: email || undefined,
+        message,
+        isRead: false,
       });
-
-      if (error) throw error;
-
       toast.success("تم إرسال رسالتك بنجاح ✅");
       setName("");
       setPhone("");
       setEmail("");
       setMessage("");
-    } catch (err: any) {
-      toast.error("فشل إرسال الرسالة: " + err.message);
+    } catch (error) {
+      toast.error("فشل في إرسال الرسالة. يرجى المحاولة مرة أخرى.");
     } finally {
       setLoading(false);
     }
@@ -47,7 +47,7 @@ const Contact = () => {
     <Layout>
       <div className="container py-16 max-w-4xl">
         <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold mb-8">اتصل بنا</h1>
+          <h1 className="text-3xl font-bold mb-8 text-center sm:text-right">اتصل بنا</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Info */}

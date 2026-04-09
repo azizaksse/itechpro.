@@ -24,6 +24,10 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
 import AdminReports from "./pages/AdminReports";
 import AdminMembers from "./pages/AdminMembers";
+import AdminInvoices from "./pages/AdminInvoices";
+import AdminSettings from "./pages/AdminSettings";
+
+import { ConvexClientProvider } from "@/providers/ConvexClientProvider";
 
 const queryClient = new QueryClient();
 
@@ -42,12 +46,13 @@ const AnimatedRoutes = () => {
           <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
           <Route path="/delivery" element={<PageTransition><Delivery /></PageTransition>} />
           <Route path="/faq" element={<PageTransition><FAQ /></PageTransition>} />
-          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/admin/products" element={<AdminProducts />} />
           <Route path="/admin/reports" element={<AdminReports />} />
           <Route path="/admin/members" element={<AdminMembers />} />
+          <Route path="/admin/invoices" element={<AdminInvoices />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>
@@ -56,20 +61,22 @@ const AnimatedRoutes = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <LanguageProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <CartDrawer />
-            <AnimatedRoutes />
-          </BrowserRouter>
-        </CartProvider>
-      </LanguageProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ConvexClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <LanguageProvider>
+          <CartProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <CartDrawer />
+              <AnimatedRoutes />
+            </BrowserRouter>
+          </CartProvider>
+        </LanguageProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ConvexClientProvider>
 );
 
 export default App;

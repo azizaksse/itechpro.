@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,62 +15,68 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
-interface Member {
-  id: string;
-  name: string;
-  phone: string | null;
-  role: string;
-  is_active: boolean;
-  created_at: string;
-}
-
 const AdminMembers = () => {
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
+  const members = useQuery(api.members.getMembers);
+  const addMember = useMutation(api.members.addMember);
+  const updateMember = useMutation(api.members.updateMember);
+  const deleteMemberMutation = useMutation(api.members.deleteMember);
+
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [editingMember, setEditingMember] = useState<any>(null);
   const [form, setForm] = useState({ name: "", phone: "", role: "موظف" });
-
-  const fetchMembers = async () => {
-    const { data } = await supabase.from("members").select("*").order("created_at", { ascending: false });
-    setMembers(data || []);
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchMembers(); }, []);
 
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error("يرجى إدخال اسم العضو"); return; }
 
-    if (editingMember) {
-      const { error } = await supabase.from("members").update({ name: form.name, phone: form.phone || null, role: form.role }).eq("id", editingMember.id);
-      if (error) { toast.error("حدث خطأ أثناء التعديل"); return; }
-      toast.success("تم تعديل العضو بنجاح");
-    } else {
-      const { error } = await supabase.from("members").insert({ name: form.name, phone: form.phone || null, role: form.role });
-      if (error) { toast.error("حدث خطأ أثناء الإضافة"); return; }
-      toast.success("تم إضافة العضو بنجاح");
+    try {
+      if (editingMember) {
+        await updateMember({
+          id: editingMember._id,
+          name: form.name,
+          phone: form.phone || undefined,
+          role: form.role,
+        });
+        toast.success("تم تعديل العضو بنجاح");
+      } else {
+        await addMember({
+          name: form.name,
+          phone: form.phone || undefined,
+          role: form.role,
+          isActive: true,
+        });
+        toast.success("تم إضافة العضو بنجاح");
+      }
+      setDialogOpen(false);
+      setEditingMember(null);
+      setForm({ name: "", phone: "", role: "موظف" });
+    } catch (e) {
+      toast.error("فشل في حفظ البيانات");
     }
-
-    setDialogOpen(false);
-    setEditingMember(null);
-    setForm({ name: "", phone: "", role: "موظف" });
-    fetchMembers();
   };
 
-  const toggleActive = async (member: Member) => {
-    await supabase.from("members").update({ is_active: !member.is_active }).eq("id", member.id);
-    fetchMembers();
+  const toggleActive = async (member: any) => {
+    try {
+      await updateMember({
+        id: member._id,
+        isActive: !member.isActive,
+      });
+      toast.success("تم تحديث حالة العضو");
+    } catch (e) {
+      toast.error("فشل في تحديث الحالة");
+    }
   };
 
-  const deleteMember = async (id: string) => {
+  const deleteMember = async (id: any) => {
     if (!confirm("هل أنت متأكد من حذف هذا العضو؟")) return;
-    await supabase.from("members").delete().eq("id", id);
-    toast.success("تم حذف العضو");
-    fetchMembers();
+    try {
+      await deleteMemberMutation({ id });
+      toast.success("تم حذف العضو");
+    } catch (e) {
+      toast.error("فشل في حذف العضو");
+    }
   };
 
-  const openEdit = (member: Member) => {
+  const openEdit = (member: any) => {
     setEditingMember(member);
     setForm({ name: member.name, phone: member.phone || "", role: member.role });
     setDialogOpen(true);
@@ -81,11 +88,13 @@ const AdminMembers = () => {
     setDialogOpen(true);
   };
 
+  const loading = members === undefined;
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">الأعضاء</h2>
+          <h2 className="text-2xl font-bold">الأعضاء (Convex)</h2>
           <Button onClick={openAdd} className="gap-2">
             <Plus size={16} /> إضافة عضو
           </Button>
@@ -98,14 +107,14 @@ const AdminMembers = () => {
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {members.map((member) => (
-              <div key={member.id} className="glass-card rounded-xl p-5 border border-border hover:border-primary/30 transition-all">
+              <div key={member._id} className="glass-card rounded-xl p-5 border border-border hover:border-primary/30 transition-all">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="font-semibold text-lg">{member.name}</h3>
                     {member.phone && <p className="text-sm text-muted-foreground">{member.phone}</p>}
                   </div>
-                  <Badge variant={member.is_active ? "default" : "secondary"}>
-                    {member.is_active ? "نشط" : "غير نشط"}
+                  <Badge variant={member.isActive ? "default" : "secondary"}>
+                    {member.isActive ? "نشط" : "غير نشط"}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">الدور: {member.role}</p>
@@ -114,9 +123,9 @@ const AdminMembers = () => {
                     <Edit2 size={14} />
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => toggleActive(member)}>
-                    {member.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
+                    {member.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
                   </Button>
-                  <Button variant="destructive" size="sm" onClick={() => deleteMember(member.id)}>
+                  <Button variant="destructive" size="sm" onClick={() => deleteMember(member._id)}>
                     <Trash2 size={14} />
                   </Button>
                 </div>

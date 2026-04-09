@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Lock, Mail, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
@@ -12,16 +11,21 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      toast.error("بيانات الدخول غير صحيحة");
-    } else {
-      navigate("/admin");
-    }
+    
+    // Simple mock login logic
+    setTimeout(() => {
+      setLoading(false);
+      if (email === "admin@itechpro.com" && password === "admin123") {
+        localStorage.setItem("adminSession", "true");
+        toast.success("تم تسجيل الدخول بنجاح");
+        navigate("/admin");
+      } else {
+        toast.error("بيانات الدخول غير صحيحة");
+      }
+    }, 1000);
   };
 
   return (
@@ -32,7 +36,7 @@ const AdminLogin = () => {
             <Lock size={28} className="text-primary" />
           </div>
           <h1 className="text-2xl font-bold">لوحة التحكم</h1>
-          <p className="text-muted-foreground text-sm mt-1">تسجيل دخول المسؤول</p>
+          <p className="text-muted-foreground text-sm mt-1">تسجيل دخول المسؤول (Demo: admin@itechpro.com / admin123)</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

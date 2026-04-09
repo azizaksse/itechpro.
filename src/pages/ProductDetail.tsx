@@ -10,6 +10,7 @@ import { formatPrice } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
+import ItemImage from "@/components/ItemImage";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -17,7 +18,7 @@ const ProductDetail = () => {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const { addItem } = useCart();
   const { products, loading } = useProducts();
-  const product = products.find((p) => p.id === id);
+  const product = products.find((p) => (p._id || p.id) === id);
 
   if (loading) {
     return (
@@ -40,7 +41,8 @@ const ProductDetail = () => {
     );
   }
 
-  const related = products.filter((p) => p.category === product.category && p.id !== product.id);
+  const pId = product._id || product.id;
+  const related = products.filter((p) => p.category === product.category && (p._id || p.id) !== pId);
   const perPage = 3;
   const totalPages = Math.ceil(related.length / perPage);
   const visibleRelated = related.slice(relatedPage * perPage, relatedPage * perPage + perPage);
@@ -66,8 +68,8 @@ const ProductDetail = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Image */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-2xl overflow-hidden aspect-square">
-            <img src={product.image} alt={product.nameAr} className="w-full h-full object-cover" />
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-2xl overflow-hidden aspect-square flex items-center justify-center p-4">
+            <ItemImage src={product.image} alt={product.nameAr} className="max-w-full max-h-full object-contain" />
           </motion.div>
 
           {/* Info */}
@@ -84,10 +86,10 @@ const ProductDetail = () => {
             <div className="flex items-center gap-2 mb-4">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} className={i < Math.floor(product.rating) ? "fill-primary text-primary" : "text-muted-foreground"} />
+                  <Star key={i} size={14} className={i < Math.floor(product.rating || 5) ? "fill-primary text-primary" : "text-muted-foreground"} />
                 ))}
               </div>
-              <span className="text-sm text-muted-foreground">({product.reviews} تقييم)</span>
+              <span className="text-sm text-muted-foreground">({product.reviews || 0} تقييم)</span>
             </div>
 
             {/* Price */}
@@ -184,7 +186,7 @@ const ProductDetail = () => {
               )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {visibleRelated.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+              {visibleRelated.map((p, i) => <ProductCard key={p._id || p.id} product={p} index={i} />)}
             </div>
           </div>
         )}

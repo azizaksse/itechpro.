@@ -39,6 +39,7 @@ const Index = () => {
   const [visibleCount, setVisibleCount] = useState(4);
   const [visibleNewCount, setVisibleNewCount] = useState(4);
   const [visiblePromoCount, setVisiblePromoCount] = useState(4);
+  
   const allNewProducts = products.filter((p) => p.isNew);
   const newProducts = allNewProducts.slice(0, visibleNewCount);
   const allPromoProducts = products.filter((p) => p.isPromo);
@@ -182,7 +183,7 @@ const Index = () => {
                 className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
               >
                 {newProducts.map((p, i) => (
-                  <motion.div key={p.id} variants={staggerItem}>
+                  <motion.div key={p._id || p.id} variants={staggerItem}>
                     <ProductCard product={p} index={i} />
                   </motion.div>
                 ))}
@@ -255,7 +256,7 @@ const Index = () => {
                 className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
               >
                 {visibleProducts.map((p, i) => (
-                  <motion.div key={p.id} variants={staggerItem}>
+                  <motion.div key={p._id || p.id} variants={staggerItem}>
                     <ProductCard product={p} index={i} />
                   </motion.div>
                 ))}
@@ -294,7 +295,7 @@ const Index = () => {
                 className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
               >
                 {promoProducts.map((p, i) => (
-                  <motion.div key={p.id} variants={staggerItem}>
+                  <motion.div key={p._id || p.id} variants={staggerItem}>
                     <ProductCard product={p} index={i} />
                   </motion.div>
                 ))}

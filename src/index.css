@@ -44,6 +44,13 @@
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 100% / 0.08;
     --sidebar-ring: 0 72% 51%;
+
+    /* Dashboard Theme - Inspired by mock-up */
+    --dashboard-bg: #F5F7FF;
+    --dashboard-sidebar: #FFFFFF;
+    --dashboard-card: rgba(255, 255, 255, 0.7);
+    --dashboard-accent: #5D5FEF;
+    --dashboard-text: #1A1A1A;
   }
 }
 
@@ -336,4 +343,17 @@
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary) / 0.4);
+}
+
+.glass-dashboard-card {
+  background: var(--dashboard-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.04);
+}
+
+.sidebar-item-active {
+  background-color: #F0F2FF !important;
+  color: var(--dashboard-accent) !important;
 }

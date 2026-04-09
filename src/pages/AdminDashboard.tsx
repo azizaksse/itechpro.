@@ -1,50 +1,21 @@
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import { formatPrice } from "@/data/products";
 import { ShoppingCart, Clock, Package, DollarSign } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { useOrderNotifications } from "@/hooks/useOrderNotifications";
-
-interface Stats {
-  totalOrders: number;
-  pendingOrders: number;
-  totalProducts: number;
-  totalSales: number;
-}
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState<Stats>({
-    totalOrders: 0,
-    pendingOrders: 0,
-    totalProducts: 0,
-    totalSales: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const orders = useQuery(api.orders.getOrders);
+  const products = useQuery(api.products.getProducts);
 
-  const fetchStats = useCallback(async () => {
-    const [ordersRes, productsRes] = await Promise.all([
-      supabase.from("orders").select("*"),
-      supabase.from("products").select("id", { count: "exact", head: true }),
-    ]);
+  const stats = {
+    totalOrders: orders?.length || 0,
+    pendingOrders: orders?.filter(o => o.status === "معلق" || o.status === "new").length || 0,
+    totalProducts: products?.length || 0,
+    totalSales: orders?.reduce((acc, o) => acc + o.total, 0) || 0,
+  };
 
-    const orders = ordersRes.data || [];
-    const totalProducts = productsRes.count || 0;
-
-    setStats({
-      totalOrders: orders.length,
-      pendingOrders: orders.filter((o: any) => o.status === "new").length,
-      totalProducts,
-      totalSales: orders.filter((o: any) => o.status === "delivered").reduce((sum: number, o: any) => sum + o.total, 0),
-    });
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchStats();
-  }, [fetchStats]);
-
-  // Realtime: auto-refresh stats on new order
-  useOrderNotifications(fetchStats);
+  const loading = orders === undefined || products === undefined;
 
   const cards = [
     { title: "إجمالي الطلبات", value: stats.totalOrders, icon: ShoppingCart, color: "text-primary" },
@@ -56,7 +27,7 @@ const AdminDashboard = () => {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold">نظرة عامة</h2>
+        <h2 className="text-2xl font-bold">نظرة عامة (Realtime)</h2>
 
         {loading ? (
           <div className="flex justify-center py-20">

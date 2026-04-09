@@ -1,11 +1,12 @@
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Product, formatPrice } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
+import ItemImage from "./ItemImage";
 
-const ProductCard = ({ product, index = 0 }: { product: Product; index?: number }) => {
+const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) => {
   const { addItem } = useCart();
   const { t } = useLanguage();
 
@@ -16,16 +17,17 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
     toast.success(t("cart.added"));
   };
 
+  const productId = product.id || product._id;
+
   return (
-    <Link to={`/product/${product.id}`} className="block group">
+    <Link to={`/product/${productId}`} className="block group">
       <div className="glass-card glass-card-hover glow-border-hover rounded-2xl overflow-hidden">
         {/* Image */}
         <div className="relative aspect-square bg-secondary/30 img-zoom-container">
-          <img
+          <ItemImage
             src={product.image}
             alt={product.nameAr}
-            className="w-full h-full object-cover"
-            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           />
           {/* Badges */}
           <div className="absolute top-3 right-3 flex flex-col gap-1.5">
@@ -61,9 +63,9 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
 
           {/* Specs strip */}
           <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-hide">
-            {Object.entries(product.specs).slice(0, 2).map(([key, val]) => (
+            {product.specs && Object.entries(product.specs).slice(0, 2).map(([key, val]) => (
               <span key={key} className="shrink-0 px-2 py-0.5 rounded bg-secondary text-[10px] text-muted-foreground">
-                {val}
+                {String(val)}
               </span>
             ))}
           </div>
@@ -71,7 +73,7 @@ const ProductCard = ({ product, index = 0 }: { product: Product; index?: number 
           {/* Rating */}
           <div className="flex items-center gap-1 mb-2">
             <Star size={12} className="fill-primary text-primary" />
-            <span className="text-xs text-muted-foreground">{product.rating} ({product.reviews})</span>
+            <span className="text-xs text-muted-foreground">{product.rating || "5.0"} ({product.reviews || 0})</span>
           </div>
 
           {/* Price */}
