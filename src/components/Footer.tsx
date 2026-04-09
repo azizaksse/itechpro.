@@ -27,6 +27,7 @@ const Footer = () => {
               <div className="flex flex-col gap-2">
                 {[
                   { to: "/", label: "الرئيسية" },
+                  { to: "/admin", label: "الإدارة" },
                   { to: "/products", label: "المنتجات" },
                   { to: "/pc-builder", label: "ابنِ حاسوبك" },
                   { to: "/about", label: "من نحن" },
