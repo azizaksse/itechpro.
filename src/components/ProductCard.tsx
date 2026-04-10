@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
@@ -21,67 +21,117 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
 
   return (
     <Link to={`/product/${productId}`} className="block group">
-      <div className="glass-card glass-card-hover glow-border-hover rounded-2xl overflow-hidden">
-        {/* Image */}
-        <div className="relative aspect-square bg-secondary/30 img-zoom-container">
-          <ItemImage
-            src={product.image}
-            alt={product.nameAr}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-          />
-          {/* Badges */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1.5">
-            {product.isNew && (
-              <span className="px-2 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">{t("product.new")}</span>
-            )}
+      <div
+        className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
+        style={{
+          background: "hsl(0 0% 7%)",
+          border: "1px solid hsla(0,0%,100%,0.07)",
+          boxShadow: "0 4px 24px -6px rgba(0,0,0,0.5)",
+        }}
+      >
+        {/* ── Image area ── */}
+        <div className="relative bg-[hsl(0,0%,10%)] overflow-hidden">
+          {/* Badge — top left (matching screenshot) */}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
             {product.isPromo && (
-              <span className="px-2 py-0.5 rounded-md bg-accent text-accent-foreground text-[10px] font-bold">{t("product.promo")}</span>
+              <span
+                className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide text-white"
+                style={{ background: "hsl(0 72% 51%)" }}
+              >
+                PROMO
+              </span>
+            )}
+            {product.isNew && (
+              <span
+                className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide text-white"
+                style={{ background: "hsl(0 72% 45%)" }}
+              >
+                NEW
+              </span>
             )}
           </div>
-          {/* Quick actions */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1.5 translate-y-2 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-            <button className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary hover:scale-110 transition-all duration-200 btn-press">
-              <Heart size={14} />
-            </button>
-            <button onClick={handleAddToCart} className="w-8 h-8 rounded-md bg-card/80 backdrop-blur flex items-center justify-center text-muted-foreground hover:text-primary hover:scale-110 transition-all duration-200 btn-press">
-              <ShoppingCart size={14} />
-            </button>
-          </div>
-          {/* Stock */}
+
+          {/* Stock dot — top right */}
           {product.inStock && (
-            <div className="absolute bottom-3 right-3 flex items-center gap-1.5">
+            <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 stock-pulse" />
-              <span className="text-[10px] text-green-400 font-medium">{t("product.inStock")}</span>
+              <span className="text-[10px] text-green-400 font-medium">متوفر</span>
             </div>
           )}
+
+          {/* Product image */}
+          <div className="aspect-[4/3] flex items-center justify-center p-4 img-zoom-container">
+            <ItemImage
+              src={product.image}
+              alt={product.nameAr}
+              className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
         </div>
 
-        {/* Info */}
-        <div className="p-4">
-          <p className="text-xs text-muted-foreground mb-1">{product.brand}</p>
-          <h3 className="text-sm font-semibold leading-tight mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">{product.nameAr}</h3>
+        {/* ── Info area ── */}
+        <div className="flex flex-col flex-1 p-4 gap-3">
+          {/* Brand */}
+          <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+            {product.brand}
+          </p>
 
-          {/* Specs strip */}
-          <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-hide">
-            {product.specs && Object.entries(product.specs).slice(0, 2).map(([key, val]) => (
-              <span key={key} className="shrink-0 px-2 py-0.5 rounded bg-secondary text-[10px] text-muted-foreground">
-                {String(val)}
-              </span>
-            ))}
-          </div>
+          {/* Product name */}
+          <h3
+            className="text-sm font-bold leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-200"
+            style={{ color: "hsl(0 0% 92%)" }}
+          >
+            {product.nameAr}
+          </h3>
 
-          {/* Rating */}
-          <div className="flex items-center gap-1 mb-2">
-            <Star size={12} className="fill-primary text-primary" />
-            <span className="text-xs text-muted-foreground">{product.rating || "5.0"} ({product.reviews || 0})</span>
-          </div>
-
-          {/* Price */}
-          <div className="flex items-center gap-2">
-            <span className="text-base font-bold text-primary">{formatPrice(product.price)}</span>
+          {/* Price row */}
+          <div className="flex items-baseline gap-2 flex-wrap mt-auto">
             {product.oldPrice && (
-              <span className="text-xs text-muted-foreground line-through">{formatPrice(product.oldPrice)}</span>
+              <span className="text-xs text-muted-foreground line-through">
+                {formatPrice(product.oldPrice)}
+              </span>
             )}
+            <span
+              className="text-base font-extrabold"
+              style={{ color: "hsl(0 72% 51%)" }}
+            >
+              {formatPrice(product.price)}
+            </span>
+          </div>
+
+          {/* Action buttons — matches screenshot layout */}
+          <div className="flex gap-2 pt-1">
+            {/* Cart icon button */}
+            <button
+              onClick={handleAddToCart}
+              aria-label="أضف للسلة"
+              className="w-10 h-10 shrink-0 rounded-lg border flex items-center justify-center transition-all duration-200 hover:scale-105 btn-press"
+              style={{
+                borderColor: "hsla(0,72%,51%,0.4)",
+                color: "hsl(0 72% 51%)",
+                background: "transparent",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "hsl(0 72% 51% / 0.12)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.background = "transparent";
+              }}
+            >
+              <ShoppingCart size={16} />
+            </button>
+
+            {/* Shop Now button */}
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 h-10 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:opacity-90 btn-press"
+              style={{
+                background: "hsl(0 72% 51%)",
+                boxShadow: "0 4px 14px hsl(0 72% 51% / 0.3)",
+              }}
+            >
+              اطلب الآن
+            </button>
           </div>
         </div>
       </div>
