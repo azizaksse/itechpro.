@@ -8,6 +8,7 @@ import {
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { products, formatPrice } from "@/data/products";
+import CheckoutModal from "@/components/CheckoutModal";
 
 interface BuildSlot {
   id: string;
@@ -19,23 +20,24 @@ interface BuildSlot {
 }
 
 const initialSlots: BuildSlot[] = [
-  { id: "cpu",         nameAr: "المعالج",        subtitleAr: "اختر معالجك المفضل",          icon: Cpu,        category: "processors",     selected: null },
-  { id: "gpu",         nameAr: "كرت الشاشة",     subtitleAr: "اختر بطاقة الرسومات",         icon: Zap,        category: "graphics-cards", selected: null },
-  { id: "ram",         nameAr: "الذاكرة العشوائية", subtitleAr: "اختر سعة الرام",            icon: HardDrive,  category: "ram",            selected: null },
-  { id: "storage",     nameAr: "وحدة التخزين",   subtitleAr: "SSD أو HDD أو كليهما",        icon: HardDrive,  category: "storage",        selected: null },
-  { id: "motherboard", nameAr: "اللوحة الأم",    subtitleAr: "اختر لوحتك الأم",              icon: CircuitBoard, category: "motherboards", selected: null },
-  { id: "psu",         nameAr: "مزود الطاقة",    subtitleAr: "اختر وحدة الطاقة المناسبة",    icon: Battery,    category: "power-supplies", selected: null },
-  { id: "case",        nameAr: "الصندوق",         subtitleAr: "اختر هيكل الحاسوب",           icon: Box,        category: "cases",          selected: null },
-  { id: "cooling",     nameAr: "نظام التبريد",    subtitleAr: "اختر نظام تبريد فعّال",        icon: Fan,        category: "cooling",        selected: null },
-  { id: "monitor",     nameAr: "الشاشة",          subtitleAr: "اختر شاشتك المثالية",          icon: MonitorDot, category: "monitors",       selected: null },
-  { id: "keyboard",    nameAr: "لوحة المفاتيح",   subtitleAr: "اختر لوحة المفاتيح المناسبة", icon: Keyboard,   category: "keyboards",      selected: null },
-  { id: "mouse",       nameAr: "الفأرة",           subtitleAr: "اختر الفأرة المناسبة",         icon: Mouse,      category: "mice",           selected: null },
-  { id: "headset",     nameAr: "سماعة الرأس",     subtitleAr: "اختر سماعتك المفضلة",          icon: Headphones, category: "headsets",       selected: null },
+  { id: "cpu",         nameAr: "المعالج",           subtitleAr: "اختر معالجك المفضل",           icon: Cpu,          category: "processors",     selected: null },
+  { id: "gpu",         nameAr: "كرت الشاشة",        subtitleAr: "اختر بطاقة الرسومات",          icon: Zap,          category: "graphics-cards", selected: null },
+  { id: "ram",         nameAr: "الذاكرة العشوائية", subtitleAr: "اختر سعة الرام",               icon: HardDrive,    category: "ram",            selected: null },
+  { id: "storage",     nameAr: "وحدة التخزين",      subtitleAr: "SSD أو HDD أو كليهما",         icon: HardDrive,    category: "storage",        selected: null },
+  { id: "motherboard", nameAr: "اللوحة الأم",       subtitleAr: "اختر لوحتك الأم",              icon: CircuitBoard, category: "motherboards",   selected: null },
+  { id: "psu",         nameAr: "مزود الطاقة",       subtitleAr: "اختر وحدة الطاقة المناسبة",    icon: Battery,      category: "power-supplies", selected: null },
+  { id: "case",        nameAr: "الصندوق",            subtitleAr: "اختر هيكل الحاسوب",            icon: Box,          category: "cases",          selected: null },
+  { id: "cooling",     nameAr: "نظام التبريد",       subtitleAr: "اختر نظام تبريد فعّال",        icon: Fan,          category: "cooling",        selected: null },
+  { id: "monitor",     nameAr: "الشاشة",             subtitleAr: "اختر شاشتك المثالية",          icon: MonitorDot,   category: "monitors",       selected: null },
+  { id: "keyboard",    nameAr: "لوحة المفاتيح",      subtitleAr: "اختر لوحة المفاتيح المناسبة",  icon: Keyboard,     category: "keyboards",      selected: null },
+  { id: "mouse",       nameAr: "الفأرة",              subtitleAr: "اختر الفأرة المناسبة",         icon: Mouse,        category: "mice",           selected: null },
+  { id: "headset",     nameAr: "سماعة الرأس",        subtitleAr: "اختر سماعتك المفضلة",          icon: Headphones,   category: "headsets",       selected: null },
 ];
 
 const PCBuilder = () => {
   const [slots, setSlots] = useState<BuildSlot[]>(initialSlots);
   const [activeSlot, setActiveSlot] = useState<string | null>(null);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const totalPrice = useMemo(() => {
     return slots.reduce((sum, slot) => {
@@ -53,6 +55,16 @@ const PCBuilder = () => {
   const availableProducts = activeSlotData
     ? products.filter((p) => p.category === activeSlotData.category)
     : [];
+
+  // Build checkout items from selected slots
+  const checkoutItems = useMemo(() => {
+    return slots
+      .filter((s) => s.selected)
+      .map((s) => {
+        const p = products.find((pr) => pr.id === s.selected)!;
+        return { product: p, quantity: 1 };
+      });
+  }, [slots]);
 
   const selectProduct = (productId: string) => {
     setSlots((prev) =>
@@ -133,7 +145,6 @@ const PCBuilder = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.25 }}
                 >
-                  {/* Back button */}
                   <button
                     onClick={() => setActiveSlot(null)}
                     className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors"
@@ -205,7 +216,6 @@ const PCBuilder = () => {
                             : "border-border/40 bg-card hover:border-primary/30 hover:bg-card/80"
                           }`}
                       >
-                        {/* Status dot */}
                         {isSelected && (
                           <CheckCircle2
                             size={16}
@@ -213,7 +223,6 @@ const PCBuilder = () => {
                           />
                         )}
 
-                        {/* Icon */}
                         <div
                           className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0
                             ${isSelected ? "bg-primary/15" : "bg-secondary"}`}
@@ -224,7 +233,6 @@ const PCBuilder = () => {
                           />
                         </div>
 
-                        {/* Text */}
                         <div className="flex-1">
                           <h3 className="font-bold text-base leading-tight">{slot.nameAr}</h3>
                           {selectedProduct ? (
@@ -238,7 +246,6 @@ const PCBuilder = () => {
                           )}
                         </div>
 
-                        {/* Actions */}
                         <div className="flex items-center justify-between gap-2 mt-auto">
                           {selectedProduct && (
                             <span className="text-sm font-bold text-primary">
@@ -344,6 +351,7 @@ const PCBuilder = () => {
                   variant="hero"
                   className="w-full pulse-glow"
                   disabled={selectedCount === 0}
+                  onClick={() => setCheckoutOpen(true)}
                 >
                   <ShoppingCart size={15} className="ml-2" />
                   اطلب التجميعة
@@ -368,6 +376,14 @@ const PCBuilder = () => {
 
         </div>
       </div>
+
+      {/* Checkout Modal */}
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        cartItems={checkoutItems}
+        onOrderSuccess={resetBuild}
+      />
     </Layout>
   );
 };
