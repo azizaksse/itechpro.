@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { categories } from "@/data/products";
-import { X, Upload, Trash2, Loader2, Save } from "lucide-react";
+import { X, Upload, Loader2, Save } from "lucide-react";
 import SpecsField from "./SpecsField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import ItemImage from "../ItemImage";
 
 interface EditProductModalProps {
   open: boolean;
@@ -19,7 +20,9 @@ interface EditProductModalProps {
 
 const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProductModalProps) => {
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const updateProductMutation = useMutation(api.products.updateProduct);
+  const generateUploadUrl = useMutation(api.products.generateUploadUrl);
 
   const [form, setForm] = useState({
     nameAr: "",
@@ -60,6 +63,27 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
   const updateField = (field: string, value: string | boolean) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const postUrl = await generateUploadUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      const { storageId } = await result.json();
+      updateField("image", storageId);
+      toast.success("تم رفع الصورة بنجاح ✅");
+    } catch {
+      toast.error("فشل رفع الصورة");
+    } finally {
+      setUploading(false);
+    }
   };
 
 
@@ -137,19 +161,35 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
           <div className="space-y-1.5 focus-within:text-primary transition-colors">
             <Label className="flex items-center gap-2">
               <Upload size={14} />
-              رابط صورة المنتج الرئيسية
+              صورة المنتج
             </Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder="انسخ رابط الصورة هنا..."
-                value={form.image}
-                onChange={(e) => updateField("image", e.target.value)}
-                className="flex-1"
-                dir="ltr"
-              />
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="انسخ رابط الصورة هنا..."
+                  value={form.image}
+                  onChange={(e) => updateField("image", e.target.value)}
+                  className="flex-1"
+                  dir="ltr"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="relative overflow-hidden shrink-0 border-dashed hover:border-primary/50"
+                  disabled={uploading}
+                >
+                  {uploading ? <Loader2 size={16} className="animate-spin" /> : "رفع صورة"}
+                  <input
+                    type="file"
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    onChange={handleFileUpload}
+                    accept="image/*"
+                  />
+                </Button>
+              </div>
               {form.image && (
-                <div className="w-11 h-11 rounded-lg border border-border overflow-hidden shrink-0 bg-secondary/50">
-                  <img src={form.image} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.src = "https://placehold.co/100x100?text=Error")} />
+                <div className="w-full h-32 rounded-xl border border-border overflow-hidden bg-secondary/30 flex items-center justify-center p-2 group transition-all hover:bg-secondary/50">
+                  <ItemImage src={form.image} className="h-full object-contain transition-transform group-hover:scale-105" />
                 </div>
               )}
             </div>
