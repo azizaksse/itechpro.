@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { SlidersHorizontal, Search, Loader2 } from "lucide-react";
+import { SlidersHorizontal, Search, Loader2, ChevronDown } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
@@ -20,6 +20,12 @@ const Products = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(8);
+
+  // Reset visible count whenever filters or search change
+  useEffect(() => {
+    setVisibleCount(8);
+  }, [search, selectedCategory, selectedBrand, sortBy, promoParam]);
 
   const brands = useMemo(() => [...new Set(products.map((p) => p.brand))], [products]);
 
@@ -95,14 +101,28 @@ const Products = () => {
           <div className="flex justify-center py-20"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground mb-4">{filtered.length} منتج</p>
+            <p className="text-sm text-muted-foreground mb-4">
+              عرض {Math.min(visibleCount, filtered.length)} من {filtered.length} منتج
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filtered.map((p, i) => (
+              {filtered.slice(0, visibleCount).map((p, i) => (
                 <ProductCard key={p._id || p.id} product={p} index={i} />
               ))}
             </div>
             {filtered.length === 0 && (
               <div className="text-center py-20 text-muted-foreground">لا توجد منتجات مطابقة</div>
+            )}
+            {visibleCount < filtered.length && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => setVisibleCount((v) => v + 8)}
+                  className="group flex items-center gap-2 px-8 py-3 rounded-2xl bg-secondary border border-border hover:border-primary/40 hover:bg-primary/10 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  <span>عرض المزيد</span>
+                  <ChevronDown size={16} className="group-hover:translate-y-0.5 transition-transform" />
+                  <span className="text-xs text-muted-foreground">({filtered.length - visibleCount} متبقي)</span>
+                </button>
+              </div>
             )}
           </>
         )}

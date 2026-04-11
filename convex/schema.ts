@@ -31,11 +31,13 @@ export default defineSchema({
     address: v.string(),
     deliveryMethod: v.string(), // "home" | "office"
     officeName: v.optional(v.string()),
-    status: v.string(), // "new" | "confirmed" | "preparing" | "shipped" | "delivered" | "cancelled"
+    status: v.string(), // "معلق" | "تم التأكيد" | "قيد التحضير" | "تم الشحن" | "تم التوصيل" | "ملغى"
     subtotal: v.number(),
     deliveryFee: v.number(),
     total: v.number(),
-  }),
+    isSuspicious: v.optional(v.boolean()),
+    suspiciousReason: v.optional(v.string()),
+  }).index("by_phone", ["phone"]),
   orderItems: defineTable({
     orderId: v.id("orders"),
     productId: v.string(), // Static ID or Convex ID string

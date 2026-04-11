@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Minus, Plus, Truck, Building2, MapPin, Phone, User, ChevronDown, Package, CheckCircle2, MessageCircle, PartyPopper, Gift, Heart } from "lucide-react";
+import { X, Truck, Building2, Phone, ChevronDown, Package, CheckCircle2, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product, formatPrice } from "@/data/products";
 import { wilayas, getWilayaByCode } from "@/data/algerianWilayas";
@@ -24,7 +24,8 @@ interface CheckoutModalProps {
 
 type DeliveryMethod = "home" | "office";
 
-const ADMIN_PHONE = "213772061398";
+const SUPPORT_PHONE = "0772061398";
+const SUPPORT_PHONE_DISPLAY = "0772 06 13 98";
 
 const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: CheckoutModalProps) => {
   const [singleQuantity, setSingleQuantity] = useState(1);
@@ -39,7 +40,7 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [phoneError, setPhoneError] = useState("");
-  const customerWhatsAppRef = useRef<string | null>(null);
+  const formOpenTimeRef = useRef<number>(Date.now());
 
   const checkoutItems: CheckoutItem[] = useMemo(() => {
     if (cartItems && cartItems.length > 0) return cartItems;
@@ -81,17 +82,18 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
     (deliveryMethod === "home" || officeName.trim()) &&
     checkoutItems.length > 0;
 
-  const generateWhatsAppMessage = () => {
-    const itemsText = checkoutItems.map(item => `📦 ${item.product.nameAr} × ${item.quantity} = ${formatPrice(item.product.price * item.quantity)}`).join("\n");
-    const msg = `🛒 *طلب جديد*\n━━━━━━━━━━━━━━━\n${itemsText}\n━━━━━━━━━━━━━━━\n💰 *المجموع الفرعي:* ${formatPrice(subtotal)}\n🚚 *رسوم التوصيل:* ${formatPrice(deliveryFee)}\n💵 *المجموع الكلي:* ${formatPrice(total)}\n━━━━━━━━━━━━━━━\n👤 *الاسم:* ${firstName} ${lastName}\n📱 *الهاتف:* ${phone}\n🏙️ *الولاية:* ${wilaya?.name || ""}\n🏘️ *البلدية:* ${selectedCommune}\n📍 *العنوان:* ${address}\n🚛 *التوصيل:* ${deliveryMethod === "home" ? "إلى المنزل" : `إلى مكتب: ${officeName}`}\n━━━━━━━━━━━━━━━`;
-    return encodeURIComponent(msg);
-  };
-
   const createOrder = useMutation(api.orders.createOrder);
 
   const handleSubmit = async () => {
     if (!isFormValid) return;
     setIsSubmitting(true);
+
+    // Timing-based bot detection: form filled in under 4 seconds
+    const elapsedSeconds = (Date.now() - formOpenTimeRef.current) / 1000;
+    const clientSuspiciousReason = elapsedSeconds < 4
+      ? `الطلب أُرسل في ${elapsedSeconds.toFixed(1)} ثانية (سريع جداً)`
+      : undefined;
+
     try {
       await createOrder({
         customerFirstName: firstName,
@@ -106,6 +108,7 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
         subtotal,
         deliveryFee,
         total,
+        clientSuspiciousReason,
         items: checkoutItems.map(item => ({
           productId: item.product._id || (item.product as any).id || "mock",
           productName: item.product.nameAr,
@@ -115,11 +118,10 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
         })),
       });
 
-      window.open(`https://wa.me/${ADMIN_PHONE}?text=${generateWhatsAppMessage()}`, "_blank");
       setIsSuccess(true);
-      toast.success("تم إرسال الطلب بنجاح!");
+      toast.success("تم تسجيل طلبك بنجاح!");
     } catch (error) {
-      toast.error("فشل في إرسال الطلب");
+      toast.error("فشل في إرسال الطلب، حاول مجدداً");
     } finally {
       setIsSubmitting(false);
     }
@@ -158,7 +160,17 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
                     </div>
                     <div>
                       <h3 className="text-2xl font-bold mb-2">تم الطلب بنجاح! 🎉</h3>
-                      <p className="text-muted-foreground text-sm">سيتم التواصل معك عبر الهاتف لتأكيد الطلب</p>
+                      <p className="text-muted-foreground text-sm">سيتصل بك فريقنا قريباً لتأكيد طلبك</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-secondary/40 border border-border space-y-2">
+                      <p className="text-xs text-muted-foreground">هل لديك مشكلة أو استفسار؟ تواصل معنا:</p>
+                      <a
+                        href={`tel:${SUPPORT_PHONE}`}
+                        className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary/10 border border-primary/30 text-primary font-bold hover:bg-primary/20 transition-all"
+                      >
+                        <PhoneCall size={18} />
+                        {SUPPORT_PHONE_DISPLAY}
+                      </a>
                     </div>
                     <Button variant="hero" onClick={handleClose} className="w-full">متابعة التسوق</Button>
                   </motion.div>
@@ -238,7 +250,7 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
             {!isSuccess && (
               <div className="p-5 border-t border-border bg-card shrink-0">
                 <Button onClick={handleSubmit} variant="hero" size="lg" className="w-full pulse-glow" disabled={!isFormValid || isSubmitting}>
-                  {isSubmitting ? <Loader2 className="animate-spin" /> : <><MessageCircle className="ml-2" size={18} /> إتمام الطلب عبر واتساب</>}
+                  {isSubmitting ? <Loader2 className="animate-spin" /> : <><Package className="ml-2" size={18} /> تأكيد الطلب</>}
                 </Button>
               </div>
             )}

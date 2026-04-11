@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { formatPrice } from "@/data/products";
-import { ChevronDown, Eye, Trash2, Search } from "lucide-react";
+import { ChevronDown, Eye, Trash2, Search, ShieldAlert, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -24,10 +24,12 @@ const AdminOrders = () => {
   const orders = useQuery(api.orders.getOrders);
   const updateStatusMutation = useMutation(api.orders.updateOrderStatus);
   const deleteOrderMutation = useMutation(api.orders.deleteOrder);
+  const markOrderSafeMutation = useMutation(api.orders.markOrderSafe);
 
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [showSuspiciousOnly, setShowSuspiciousOnly] = useState(false);
 
   const toggleExpand = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
@@ -52,6 +54,15 @@ const AdminOrders = () => {
     }
   };
 
+  const markSafe = async (orderId: any) => {
+    try {
+      await markOrderSafeMutation({ id: orderId });
+      toast.success("تم تأكيد سلامة الطلب");
+    } catch (e) {
+      toast.error("حدث خطأ");
+    }
+  };
+
   const filtered = (orders || []).filter((o) => {
     const matchSearch =
       !search ||
@@ -59,15 +70,33 @@ const AdminOrders = () => {
       o.phone.includes(search) ||
       o.wilaya.includes(search);
     const matchStatus = filterStatus === "all" || o.status === filterStatus;
-    return matchSearch && matchStatus;
+    const matchSuspicious = !showSuspiciousOnly || o.isSuspicious;
+    return matchSearch && matchStatus && matchSuspicious;
   });
+
+  const suspiciousCount = (orders || []).filter((o) => o.isSuspicious).length;
 
   const loading = orders === undefined;
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold">إدارة الطلبات (Convex)</h2>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <h2 className="text-2xl font-bold">إدارة الطلبات</h2>
+          {suspiciousCount > 0 && (
+            <button
+              onClick={() => setShowSuspiciousOnly(!showSuspiciousOnly)}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                showSuspiciousOnly
+                  ? "bg-red-500/20 border-red-500/50 text-red-400"
+                  : "bg-secondary border-border text-muted-foreground hover:border-red-500/30"
+              }`}
+            >
+              <ShieldAlert size={14} />
+              {showSuspiciousOnly ? "جميع الطلبات" : `طلبات مشبوهة (${suspiciousCount})`}
+            </button>
+          )}
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -119,11 +148,19 @@ const AdminOrders = () => {
                       <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_MAP[order.status]?.color || "bg-secondary text-muted-foreground"}`}>
                         {order.status}
                       </span>
+                      {order.isSuspicious && (
+                        <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">
+                          <ShieldAlert size={11} /> مشبوه
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-x-3 gap-y-1">
                       <span>{order.phone}</span>
                       <span>{order.wilaya} - {order.commune}</span>
                       <span>{new Date(order._creationTime).toLocaleDateString("ar-DZ")}</span>
+                      {order.isSuspicious && order.suspiciousReason && (
+                        <span className="text-red-400">⚠️ {order.suspiciousReason}</span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -159,6 +196,16 @@ const AdminOrders = () => {
                         </select>
                         <ChevronDown size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                       </div>
+                      {order.isSuspicious && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => markSafe(order._id)}
+                          className="gap-1 border-green-500/30 text-green-400 hover:bg-green-500/10"
+                        >
+                          <ShieldCheck size={14} /> آمن
+                        </Button>
+                      )}
                       <Button
                         variant="destructive"
                         size="sm"

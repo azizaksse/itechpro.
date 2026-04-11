@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Link } from "react-router-dom";
-import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot, Loader2 } from "lucide-react";
+import { Truck, Shield, Headphones, Award, BadgePercent, Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, Keyboard, Mouse as MouseIcon, Headphones as HeadphonesIcon, Cable, Video, MonitorDot, Loader2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/ProductCard";
 import Layout from "@/components/Layout";
@@ -36,7 +36,7 @@ const Index = () => {
   const isMobile = useIsMobile();
   const { t } = useLanguage();
   const { products, loading } = useProducts();
-  const [visibleCount, setVisibleCount] = useState(4);
+  const [visibleCount, setVisibleCount] = useState(8);
   const [visibleNewCount, setVisibleNewCount] = useState(4);
   const [visiblePromoCount, setVisiblePromoCount] = useState(4);
   
@@ -44,7 +44,7 @@ const Index = () => {
   const newProducts = allNewProducts.slice(0, visibleNewCount);
   const allPromoProducts = products.filter((p) => p.isPromo);
   const promoProducts = allPromoProducts.slice(0, isMobile ? visiblePromoCount : allPromoProducts.length);
-  const visibleProducts = products.slice(0, isMobile ? visibleCount : Math.max(visibleCount, products.length));
+  const visibleProducts = products.slice(0, visibleCount);
 
   return (
     <Layout>
@@ -263,9 +263,14 @@ const Index = () => {
               </motion.div>
               {visibleCount < products.length && (
                 <div className="text-center mt-8">
-                  <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisibleCount((c) => Math.min(c + 8, products.length))}>
-                    {t("section.loadMore")} ({products.length - visibleCount} {t("section.remaining")})
-                  </Button>
+                  <button
+                    onClick={() => setVisibleCount((c) => Math.min(c + 8, products.length))}
+                    className="group flex items-center gap-2 px-8 py-3 rounded-2xl bg-secondary border border-border hover:border-primary/40 hover:bg-primary/10 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 mx-auto"
+                  >
+                    <span>عرض المزيد</span>
+                    <ChevronDown size={16} className="group-hover:translate-y-0.5 transition-transform" />
+                    <span className="text-xs text-muted-foreground">({products.length - visibleCount} متبقي)</span>
+                  </button>
                 </div>
               )}
             </>

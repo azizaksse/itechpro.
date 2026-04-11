@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ScrollReveal from "@/components/ScrollReveal";
 import logo from "@/assets/logo.png";
 
@@ -53,6 +53,16 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  const navigate = useNavigate();
+
+  const handleAdminClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const code = window.prompt("أدخل رمز الدخول:");
+    if (code?.trim().toUpperCase() === "ADMINITECH") {
+      navigate("/admin-login");
+    }
+  };
+
   return (
     <footer className="border-t border-secondary bg-card">
       <div className="container py-12">
@@ -99,7 +109,7 @@ const Footer = () => {
             <div>
               <h4 className="font-bold mb-4 text-sm">الأصناف</h4>
               <div className="flex flex-col gap-2">
-                {["حواسيب الألعاب", "كروت الشاشة", "المعالجات", "الشاشات", "الإكسسوارات"].map((c) => (
+                {["حواسيب الألعاب", "كروت الشاشة", "المعالجات", "الشاشات", "الإكسسوارات", "الرامات", "التخزين SSD", "مزودات الطاقة"].map((c) => (
                   <Link
                     key={c}
                     to="/products"
@@ -144,8 +154,15 @@ const Footer = () => {
           </ScrollReveal>
         </div>
 
-        <div className="border-t border-secondary mt-8 pt-6 text-center text-xs text-muted-foreground">
-          © 2026 ITECHPRO. جميع الحقوق محفوظة.
+        <div className="border-t border-secondary mt-8 pt-6 flex items-center justify-between text-xs text-muted-foreground flex-wrap gap-2">
+          <span>© 2026 ITECHPRO. جميع الحقوق محفوظة.</span>
+          <button
+            onClick={handleAdminClick}
+            className="opacity-30 hover:opacity-60 transition-opacity text-[10px] text-muted-foreground cursor-pointer"
+            aria-label="admin"
+          >
+            الإدارة
+          </button>
         </div>
       </div>
     </footer>
