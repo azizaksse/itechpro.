@@ -73,4 +73,31 @@ export default defineSchema({
     email: v.optional(v.string()),
     message: v.string(),
   }),
+
+  // ── Banners / Homepage Sliders ────────────────────────────────────────────
+  banners: defineTable({
+    title: v.string(),
+    subtitle: v.optional(v.string()),
+    imageId: v.string(),          // Convex storageId or URL
+    link: v.optional(v.string()), // Where clicking takes the user
+    isActive: v.boolean(),
+    order: v.number(),            // Display order (lower = first)
+  }),
+
+  // ── Featured / Pinned Products ────────────────────────────────────────────
+  featuredProducts: defineTable({
+    productId: v.string(),        // Convex product _id as string
+    order: v.number(),
+    isActive: v.boolean(),
+  }),
+
+  // ── Categories ───────────────────────────────────────────────────────────
+  categories: defineTable({
+    slug: v.string(),             // e.g. "keyboards"
+    nameAr: v.string(),
+    nameEn: v.optional(v.string()),
+    imageId: v.optional(v.string()),
+    isActive: v.boolean(),
+    order: v.number(),
+  }).index("by_slug", ["slug"]),
 });

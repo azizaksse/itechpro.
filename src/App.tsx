@@ -28,6 +28,9 @@ import AdminMembers from "./pages/AdminMembers";
 import AdminInvoices from "./pages/AdminInvoices";
 import AdminSettings from "./pages/AdminSettings";
 import AdminDelivery from "./pages/AdminDelivery";
+import AdminBanners from "./pages/AdminBanners";
+import AdminFeatured from "./pages/AdminFeatured";
+import AdminCategories from "./pages/AdminCategories";
 
 import { ConvexClientProvider } from "@/providers/ConvexClientProvider";
 
@@ -58,6 +61,9 @@ const AnimatedRoutes = () => {
           <Route path="/admin/invoices" element={<AdminInvoices />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
           <Route path="/admin/delivery" element={<AdminDelivery />} />
+          <Route path="/admin/banners" element={<AdminBanners />} />
+          <Route path="/admin/featured" element={<AdminFeatured />} />
+          <Route path="/admin/categories" element={<AdminCategories />} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>

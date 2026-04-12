@@ -8,8 +8,11 @@
  * @module
  */
 
+import type * as banners from "../banners.js";
+import type * as categories from "../categories.js";
 import type * as cleanup from "../cleanup.js";
 import type * as delivery from "../delivery.js";
+import type * as featuredProducts from "../featuredProducts.js";
 import type * as members from "../members.js";
 import type * as messages from "../messages.js";
 import type * as orders from "../orders.js";
@@ -22,8 +25,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  banners: typeof banners;
+  categories: typeof categories;
   cleanup: typeof cleanup;
   delivery: typeof delivery;
+  featuredProducts: typeof featuredProducts;
   members: typeof members;
   messages: typeof messages;
   orders: typeof orders;
