@@ -151,6 +151,8 @@ const AdminProducts = () => {
                   <th className="p-5 text-xs font-bold text-muted-foreground">الفئة</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">الماركة</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">السعر</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">الألوان</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">المقاسات</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">المخزون</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">الحالة</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">الإجراءات</th>
@@ -172,6 +174,41 @@ const AdminProducts = () => {
                     <td className="p-4"><span className="text-xs px-3 py-1 bg-secondary/30 rounded-full text-muted-foreground">{categories.find(c => c.id === p.category)?.nameAr || p.category}</span></td>
                     <td className="p-4 text-xs">{p.brand}</td>
                     <td className="p-4 text-sm font-black text-primary">{formatPrice(p.price)}</td>
+                    {/* Colors */}
+                    <td className="p-4">
+                      {(p as any).colors && (p as any).colors.length > 0 ? (
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {((p as any).colors as string[]).slice(0, 5).map((hex: string) => (
+                            <span
+                              key={hex}
+                              title={hex}
+                              className="w-5 h-5 rounded-full border-2 border-white/20 shadow-sm shrink-0"
+                              style={{ backgroundColor: hex }}
+                            />
+                          ))}
+                          {(p as any).colors.length > 5 && (
+                            <span className="text-[10px] text-muted-foreground">+{(p as any).colors.length - 5}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground/30 text-xs">—</span>
+                      )}
+                    </td>
+                    {/* Sizes */}
+                    <td className="p-4">
+                      {(p as any).sizes && (p as any).sizes.length > 0 ? (
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {((p as any).sizes as string[]).slice(0, 3).map((s: string) => (
+                            <span key={s} className="text-[10px] px-2 py-0.5 rounded-lg bg-primary/10 text-primary border border-primary/20 font-semibold">{s}</span>
+                          ))}
+                          {(p as any).sizes.length > 3 && (
+                            <span className="text-[10px] text-muted-foreground">+{(p as any).sizes.length - 3}</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground/30 text-xs">—</span>
+                      )}
+                    </td>
                     <td className="p-4">
                       <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.stockQuantity < 5 ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>
                         {p.stockQuantity} قطعة

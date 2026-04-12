@@ -21,6 +21,16 @@ export default defineSchema({
     rating: v.optional(v.number()),
     reviews: v.optional(v.number()),
     specs: v.optional(v.any()), // Can be Record<string, string>
+    colors: v.optional(
+      v.array(
+        v.object({
+          hex: v.string(),
+          label: v.string(),
+          imageId: v.optional(v.string()), // For linking image to color
+        })
+      )
+    ),
+    sizes: v.optional(v.array(v.string())),  // e.g. ["35cm", "40cm"]
   }),
   orders: defineTable({
     customerFirstName: v.string(),
@@ -30,7 +40,7 @@ export default defineSchema({
     commune: v.string(),
     address: v.string(),
     deliveryMethod: v.string(), // "home" | "office"
-    officeName: v.optional(v.string()),
+    officeName: v.optional(v.string()), // Used if deliveryMethod is "office"
     status: v.string(), // "معلق" | "تم التأكيد" | "قيد التحضير" | "تم الشحن" | "تم التوصيل" | "ملغى"
     subtotal: v.number(),
     deliveryFee: v.number(),
@@ -38,6 +48,11 @@ export default defineSchema({
     isSuspicious: v.optional(v.boolean()),
     suspiciousReason: v.optional(v.string()),
   }).index("by_phone", ["phone"]),
+  deliveryRates: defineTable({
+    wilayaCode: v.string(), // e.g. "16"
+    deliveryHome: v.number(),
+    deliveryOffice: v.number(),
+  }).index("by_code", ["wilayaCode"]),
   orderItems: defineTable({
     orderId: v.id("orders"),
     productId: v.string(), // Static ID or Convex ID string

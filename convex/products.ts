@@ -43,6 +43,16 @@ export const addProduct = mutation({
     isNew: v.boolean(),
     isPromo: v.boolean(),
     specs: v.optional(v.any()),
+    colors: v.optional(
+      v.array(
+        v.object({
+          hex: v.string(),
+          label: v.string(),
+          imageId: v.optional(v.string()),
+        })
+      )
+    ),
+    sizes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("products", args);
@@ -68,6 +78,16 @@ export const updateProduct = mutation({
     isNew: v.boolean(),
     isPromo: v.boolean(),
     specs: v.optional(v.any()),
+    colors: v.optional(
+      v.array(
+        v.object({
+          hex: v.string(),
+          label: v.string(),
+          imageId: v.optional(v.string()),
+        })
+      )
+    ),
+    sizes: v.optional(v.array(v.string())),
   },
   handler: async (ctx, { id, ...args }) => {
     await ctx.db.patch(id, args);

@@ -62,24 +62,23 @@ const SpecsField = ({ specs, onChange }: SpecsFieldProps) => {
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1"
+          className="flex-1 h-10"
         />
         <Input
           placeholder="مثال: Intel i7-14700K"
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1"
+          className="flex-1 h-10"
         />
         <Button
           type="button"
-          variant="outline"
-          size="icon"
           onClick={addSpec}
-          disabled={!newKey.trim()}
-          className="shrink-0"
+          disabled={!newKey.trim() || !newValue.trim()}
+          size="sm"
+          className="h-10 rounded-xl gap-1 shrink-0 px-4 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/20 disabled:opacity-50"
         >
-          <Plus size={16} />
+          <Plus size={13} /> إضافة
         </Button>
       </div>
     </div>

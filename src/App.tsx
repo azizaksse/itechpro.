@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import CartDrawer from "@/components/CartDrawer";
 import TopProgressBar from "@/components/TopProgressBar";
 import PageTransition from "@/components/PageTransition";
+import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -26,6 +27,7 @@ import AdminReports from "./pages/AdminReports";
 import AdminMembers from "./pages/AdminMembers";
 import AdminInvoices from "./pages/AdminInvoices";
 import AdminSettings from "./pages/AdminSettings";
+import AdminDelivery from "./pages/AdminDelivery";
 
 import { ConvexClientProvider } from "@/providers/ConvexClientProvider";
 
@@ -36,6 +38,7 @@ const AnimatedRoutes = () => {
   return (
     <>
       <TopProgressBar />
+      <ScrollToTop />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<PageTransition><Index /></PageTransition>} />
@@ -54,6 +57,7 @@ const AnimatedRoutes = () => {
           <Route path="/admin/members" element={<AdminMembers />} />
           <Route path="/admin/invoices" element={<AdminInvoices />} />
           <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/delivery" element={<AdminDelivery />} />
           <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
         </Routes>
       </AnimatePresence>

@@ -9,6 +9,7 @@
  */
 
 import type * as cleanup from "../cleanup.js";
+import type * as delivery from "../delivery.js";
 import type * as members from "../members.js";
 import type * as messages from "../messages.js";
 import type * as orders from "../orders.js";
@@ -22,6 +23,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   cleanup: typeof cleanup;
+  delivery: typeof delivery;
   members: typeof members;
   messages: typeof messages;
   orders: typeof orders;

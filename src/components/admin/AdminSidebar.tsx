@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingCart, Package, LogOut, BarChart3, Users, Settings, FileText } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, LogOut, BarChart3, Users, Settings, FileText, Truck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -20,6 +20,7 @@ const items = [
   { title: "العملاء", url: "/admin/members", icon: Users },
   { title: "التقارير", url: "/admin/reports", icon: BarChart3 },
   { title: "الإعدادات", url: "/admin/settings", icon: Settings },
+  { title: "التوصيل", url: "/admin/delivery", icon: Truck },
 ];
 
 const AdminSidebar = () => {

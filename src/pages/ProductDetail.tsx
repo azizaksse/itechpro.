@@ -16,9 +16,34 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [relatedPage, setRelatedPage] = useState(0);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  
+  // Track selected variants
+  const [selectedColorIndex, setSelectedColorIndex] = useState<number>(0);
+  const [selectedSize, setSelectedSize] = useState<string>("");
+
   const { addItem } = useCart();
   const { products, loading } = useProducts();
   const product = products.find((p) => (p._id || p.id) === id);
+
+  // Normalize colors from old or new structure
+  const rawColors = (product as any)?.colors || [];
+  const normalizedColors = rawColors.map((c: any) => {
+    if (typeof c === "string") {
+      const parts = c.split("|");
+      return { hex: parts[0] || c, label: parts[1] || c, imageId: undefined };
+    }
+    return c;
+  });
+
+  const sizes = (product as any)?.sizes || [];
+
+  // Determine which image to show
+  const displayImage =
+    normalizedColors.length > 0 && 
+    normalizedColors[selectedColorIndex] && 
+    normalizedColors[selectedColorIndex].imageId 
+      ? normalizedColors[selectedColorIndex].imageId 
+      : product?.image;
 
   if (loading) {
     return (
@@ -69,7 +94,7 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Image */}
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="glass-card rounded-2xl overflow-hidden aspect-square flex items-center justify-center p-4">
-            <ItemImage src={product.image} alt={product.nameAr} className="max-w-full max-h-full object-contain" />
+            <ItemImage src={displayImage} alt={product.nameAr} className="max-w-full max-h-full object-contain" />
           </motion.div>
 
           {/* Info */}
@@ -109,6 +134,55 @@ const ProductDetail = () => {
                 <span className="text-sm text-muted-foreground">غير متوفر</span>
               )}
             </div>
+
+            {/* Colors variant picker */}
+            {normalizedColors.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
+                  اللون: 
+                  <span className="text-muted-foreground font-normal">
+                    {normalizedColors[selectedColorIndex].label}
+                  </span>
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {normalizedColors.map((c: any, i: number) => (
+                    <button
+                      key={c.hex + i}
+                      onClick={() => setSelectedColorIndex(i)}
+                      title={c.label}
+                      className={`w-10 h-10 rounded-full border-2 transition-all ${
+                        selectedColorIndex === i
+                          ? "border-primary ring-4 ring-primary/20 scale-110"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sizes variant picker */}
+            {sizes.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-sm font-bold mb-3">المقاس / الأبعاد</h3>
+                <div className="flex flex-wrap gap-2">
+                  {sizes.map((s: string) => (
+                    <button
+                      key={s}
+                      onClick={() => setSelectedSize(s)}
+                      className={`px-4 py-2 rounded-xl text-sm font-bold border transition-all ${
+                        selectedSize === s
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-secondary/30 text-foreground border-border hover:border-primary/50"
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex gap-3 mb-4">

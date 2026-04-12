@@ -51,7 +51,13 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
   const isSingleProduct = !cartItems || cartItems.length === 0;
   const wilaya = useMemo(() => getWilayaByCode(selectedWilaya), [selectedWilaya]);
   const communes = wilaya?.communes || [];
-  const deliveryFee = wilaya ? (deliveryMethod === "home" ? wilaya.deliveryHome : wilaya.deliveryOffice) : 0;
+
+  // Delivery fee comes from static algerianWilayas.ts (updated with your exact prices)
+  const deliveryFee = useMemo(() => {
+    if (!wilaya) return 0;
+    return deliveryMethod === "home" ? wilaya.deliveryHome : wilaya.deliveryOffice;
+  }, [wilaya, deliveryMethod]);
+
   const subtotal = checkoutItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const total = subtotal + deliveryFee;
 
