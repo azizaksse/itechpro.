@@ -23,10 +23,15 @@ const isConvexStorageId = (src: string): boolean => {
 // Inner component that calls the query — always called, args may be skipped
 const StorageImage = ({ storageId, className, alt }: { storageId: string; className?: string; alt?: string }) => {
   const imageUrl = useQuery(api.products.getImageUrl, { storageId });
+  if (imageUrl === undefined) {
+    // Loading — show shimmer skeleton
+    return <div className={`animate-pulse bg-secondary/40 ${className}`} />;
+  }
   if (!imageUrl) {
+    // Storage ID resolved but no URL — broken reference
     return (
       <div className={`flex items-center justify-center bg-secondary/20 ${className}`}>
-        <div className="w-5 h-5 border-2 border-current/20 border-t-current/60 rounded-full animate-spin opacity-30" />
+        <ImageOff size={20} className="text-muted-foreground/40" />
       </div>
     );
   }

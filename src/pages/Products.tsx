@@ -7,6 +7,8 @@ import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const Products = () => {
   const [searchParams] = useSearchParams();
@@ -14,6 +16,14 @@ const Products = () => {
   const promoParam = searchParams.get("promo");
 
   const { products, loading } = useProducts();
+  const convexCategories = useQuery(api.categories.getActiveCategories) || [];
+  
+  const displayCategories = convexCategories.length > 0 
+    ? convexCategories.map(c => ({
+        id: c.slug,
+        nameAr: c.nameAr,
+      }))
+    : categories;
 
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "");
@@ -47,7 +57,7 @@ const Products = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h1 className="text-2xl font-bold">
-            {promoParam ? "العروض الخاصة" : selectedCategory ? categories.find(c => c.id === selectedCategory)?.nameAr || "المنتجات" : "جميع المنتجات"}
+            {promoParam ? "العروض الخاصة" : selectedCategory ? displayCategories.find(c => c.id === selectedCategory)?.nameAr || "المنتجات" : "جميع المنتجات"}
           </h1>
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -82,7 +92,7 @@ const Products = () => {
             <div className="flex flex-wrap gap-2 mb-3">
               <span className="text-xs text-muted-foreground ml-2">الصنف:</span>
               <button onClick={() => setSelectedCategory("")} className={`px-2.5 py-1 rounded-md text-xs transition-colors ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>الكل</button>
-              {categories.map((c) => (
+              {displayCategories.map((c) => (
                 <button key={c.id} onClick={() => setSelectedCategory(c.id)} className={`px-2.5 py-1 rounded-md text-xs transition-colors ${selectedCategory === c.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>{c.nameAr}</button>
               ))}
             </div>

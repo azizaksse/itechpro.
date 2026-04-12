@@ -15,6 +15,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { categories } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import heroImg from "@/assets/hero-pc.png";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import ItemImage from "@/components/ItemImage";
 
 const categoryIcons: Record<string, any> = {
   Monitor, Laptop, Cpu, Zap, HardDrive, CircuitBoard, Battery, Box, Fan, MonitorDot, Keyboard, Mouse: MouseIcon, Headphones: HeadphonesIcon, Cable, Video, MemoryStick: HardDrive,
@@ -45,6 +55,20 @@ const Index = () => {
   const allPromoProducts = products.filter((p) => p.isPromo);
   const promoProducts = allPromoProducts.slice(0, isMobile ? visiblePromoCount : allPromoProducts.length);
   const visibleProducts = products.slice(0, visibleCount);
+
+  const convexCategories = useQuery(api.categories.getActiveCategories);
+  const activeBanners = useQuery(api.banners.getActiveBanners);
+  const bannersLoading = activeBanners === undefined;
+
+  // When Convex has categories, use them; otherwise fall back to static list
+  const displayCategories = convexCategories && convexCategories.length > 0
+    ? convexCategories.map(c => ({
+        id: c.slug,
+        nameAr: c.nameAr,
+        icon: "Box",
+        imageId: c.imageId,
+      }))
+    : categories;
 
   return (
     <Layout>
@@ -115,6 +139,47 @@ const Index = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Banners Slider */}
+      {bannersLoading ? null : activeBanners && activeBanners.length > 0 && (
+        <section className="pt-2 pb-8">
+          <div className="container">
+            <Carousel className="w-full rounded-3xl overflow-hidden glass-card border border-primary/20 shadow-2xl relative" opts={{ align: "start", loop: true }}>
+              <CarouselContent>
+                {activeBanners.map(b => (
+                  <CarouselItem key={b._id}>
+                    {b.link ? (
+                      <a href={b.link} target="_blank" rel="noreferrer" className="block relative w-full h-[250px] sm:h-[350px] lg:h-[450px]">
+                        <ItemImage src={b.imageId} className="w-full h-full object-cover" />
+                        {(b.title || b.subtitle) && (
+                          <div className="absolute inset-x-0 bottom-0 p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
+                            <h3 className="text-xl md:text-4xl font-bold mb-2">{b.title}</h3>
+                            {b.subtitle && <p className="text-sm md:text-lg opacity-90 max-w-2xl">{b.subtitle}</p>}
+                          </div>
+                        )}
+                      </a>
+                    ) : (
+                      <div className="relative w-full h-[250px] sm:h-[350px] lg:h-[450px]">
+                        <ItemImage src={b.imageId} className="w-full h-full object-cover" />
+                        {(b.title || b.subtitle) && (
+                          <div className="absolute inset-x-0 bottom-0 p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/50 to-transparent text-white">
+                            <h3 className="text-xl md:text-4xl font-bold mb-2">{b.title}</h3>
+                            {b.subtitle && <p className="text-sm md:text-lg opacity-90 max-w-2xl">{b.subtitle}</p>}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <div className="hidden sm:block">
+                <CarouselPrevious className="absolute left-6 top-1/2 -translate-y-1/2" />
+                <CarouselNext className="absolute right-6 top-1/2 -translate-y-1/2" />
+              </div>
+            </Carousel>
+          </div>
+        </section>
+      )}
 
 
       {/* Features */}
@@ -214,7 +279,7 @@ const Index = () => {
             viewport={{ once: true }}
             className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-8 gap-3"
           >
-            {categories.filter((cat) => !isMobile || cat.id !== "streaming").map((cat, i) => {
+            {displayCategories.filter((cat) => !isMobile || cat.id !== "streaming").map((cat, i) => {
               const Icon = categoryIcons[cat.icon] || Monitor;
               return (
                 <motion.div key={cat.id} variants={staggerItem}>
@@ -222,8 +287,12 @@ const Index = () => {
                     to={`/products?category=${cat.id}`}
                     className="glass-card glass-card-hover glow-border-hover rounded-xl p-4 flex flex-col items-center gap-2 text-center group"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-300">
-                      <Icon size={18} className="text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors duration-300 overflow-hidden">
+                      {("imageId" in cat && cat.imageId) ? (
+                        <ItemImage src={cat.imageId as string} className="w-full h-full object-cover" />
+                      ) : (
+                        <Icon size={18} className="text-muted-foreground group-hover:text-primary transition-colors duration-300" />
+                      )}
                     </div>
                     <span className="text-[11px] font-medium text-muted-foreground group-hover:text-foreground transition-colors duration-300 leading-tight">{cat.nameAr}</span>
                   </Link>
