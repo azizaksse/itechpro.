@@ -240,19 +240,13 @@ const Index = () => {
             <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
           ) : newProducts.length > 0 ? (
             <>
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-              >
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {newProducts.map((p, i) => (
-                  <motion.div key={p._id || p.id} variants={staggerItem}>
+                  <div key={p._id || p.id}>
                     <ProductCard product={p} index={i} />
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
               {visibleNewCount < allNewProducts.length && (
                 <div className="text-center mt-8">
                   <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisibleNewCount((c) => Math.min(c + 6, allNewProducts.length))}>
@@ -317,19 +311,13 @@ const Index = () => {
             <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
           ) : (
             <>
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-              >
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {visibleProducts.map((p, i) => (
-                  <motion.div key={p._id || p.id} variants={staggerItem}>
+                  <div key={p._id || p.id}>
                     <ProductCard product={p} index={i} />
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
               {visibleCount < products.length && (
                 <div className="text-center mt-8">
                   <button
@@ -361,19 +349,13 @@ const Index = () => {
             <div className="flex justify-center py-16"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
           ) : promoProducts.length > 0 ? (
             <>
-              <motion.div
-                variants={staggerContainer}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
-              >
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {promoProducts.map((p, i) => (
-                  <motion.div key={p._id || p.id} variants={staggerItem}>
+                  <div key={p._id || p.id}>
                     <ProductCard product={p} index={i} />
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
               {isMobile && visiblePromoCount < allPromoProducts.length && (
                 <div className="text-center mt-8">
                   <Button variant="outline" size="lg" className="btn-press" onClick={() => setVisiblePromoCount((c) => Math.min(c + 4, allPromoProducts.length))}>

@@ -188,15 +188,41 @@
     opacity: 0;
     transform: translateY(20px);
     animation: staggerIn 0.5s ease forwards;
+    /* Fallback: ensure items beyond defined nth-child are always visible */
+    animation-delay: 0.4s;
   }
-  .stagger-children > *:nth-child(1) { animation-delay: 0s; }
-  .stagger-children > *:nth-child(2) { animation-delay: 0.05s; }
-  .stagger-children > *:nth-child(3) { animation-delay: 0.1s; }
-  .stagger-children > *:nth-child(4) { animation-delay: 0.15s; }
-  .stagger-children > *:nth-child(5) { animation-delay: 0.2s; }
-  .stagger-children > *:nth-child(6) { animation-delay: 0.25s; }
-  .stagger-children > *:nth-child(7) { animation-delay: 0.3s; }
-  .stagger-children > *:nth-child(8) { animation-delay: 0.35s; }
+  .stagger-children > *:nth-child(1)  { animation-delay: 0s; }
+  .stagger-children > *:nth-child(2)  { animation-delay: 0.04s; }
+  .stagger-children > *:nth-child(3)  { animation-delay: 0.08s; }
+  .stagger-children > *:nth-child(4)  { animation-delay: 0.12s; }
+  .stagger-children > *:nth-child(5)  { animation-delay: 0.16s; }
+  .stagger-children > *:nth-child(6)  { animation-delay: 0.20s; }
+  .stagger-children > *:nth-child(7)  { animation-delay: 0.24s; }
+  .stagger-children > *:nth-child(8)  { animation-delay: 0.28s; }
+  .stagger-children > *:nth-child(9)  { animation-delay: 0.30s; }
+  .stagger-children > *:nth-child(10) { animation-delay: 0.32s; }
+  .stagger-children > *:nth-child(11) { animation-delay: 0.34s; }
+  .stagger-children > *:nth-child(12) { animation-delay: 0.35s; }
+  .stagger-children > *:nth-child(13) { animation-delay: 0.36s; }
+  .stagger-children > *:nth-child(14) { animation-delay: 0.37s; }
+  .stagger-children > *:nth-child(15) { animation-delay: 0.38s; }
+  .stagger-children > *:nth-child(16) { animation-delay: 0.39s; }
+  .stagger-children > *:nth-child(17) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(18) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(19) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(20) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(21) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(22) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(23) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(24) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(25) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(26) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(27) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(28) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(29) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(30) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(31) { animation-delay: 0.40s; }
+  .stagger-children > *:nth-child(32) { animation-delay: 0.40s; }
 
   /* ====== Navbar Scroll Effect ====== */
   .navbar-scrolled {

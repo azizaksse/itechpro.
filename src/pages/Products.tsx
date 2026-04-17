@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { SlidersHorizontal, Search, Loader2, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, Search, Loader2, ChevronDown, PackageSearch } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
@@ -10,15 +10,39 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
+// Skeleton card for loading state
+const SkeletonCard = () => (
+  <div
+    className="rounded-2xl overflow-hidden flex flex-col animate-pulse"
+    style={{
+      background: "hsl(0 0% 7%)",
+      border: "1px solid hsla(0,0%,100%,0.07)",
+    }}
+  >
+    <div className="aspect-[4/3] bg-secondary/40" />
+    <div className="p-4 flex flex-col gap-3">
+      <div className="h-3 w-16 bg-secondary/40 rounded" />
+      <div className="h-4 w-full bg-secondary/40 rounded" />
+      <div className="h-4 w-3/4 bg-secondary/40 rounded" />
+      <div className="h-5 w-24 bg-secondary/40 rounded mt-1" />
+      <div className="flex gap-2 pt-1">
+        <div className="w-10 h-10 bg-secondary/40 rounded-lg" />
+        <div className="flex-1 h-10 bg-secondary/40 rounded-lg" />
+      </div>
+    </div>
+  </div>
+);
+
 const Products = () => {
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
   const promoParam = searchParams.get("promo");
 
   const { products, loading } = useProducts();
-  const convexCategories = useQuery(api.categories.getActiveCategories) || [];
+  const convexCategories = useQuery(api.categories.getActiveCategories);
   
-  const displayCategories = convexCategories.length > 0 
+  // Only fall back to static categories when Convex data is confirmed empty (not while loading)
+  const displayCategories = convexCategories && convexCategories.length > 0
     ? convexCategories.map(c => ({
         id: c.slug,
         nameAr: c.nameAr,
@@ -30,11 +54,16 @@ const Products = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(8);
+  const [visibleCount, setVisibleCount] = useState(16);
+
+  // Sync category param changes (e.g. navigating from categories section)
+  useEffect(() => {
+    setSelectedCategory(categoryParam || "");
+  }, [categoryParam]);
 
   // Reset visible count whenever filters or search change
   useEffect(() => {
-    setVisibleCount(8);
+    setVisibleCount(16);
   }, [search, selectedCategory, selectedBrand, sortBy, promoParam]);
 
   const brands = useMemo(() => [...new Set(products.map((p) => p.brand))], [products]);
@@ -51,13 +80,20 @@ const Products = () => {
     return result;
   }, [products, search, selectedCategory, selectedBrand, sortBy, promoParam]);
 
+  const pageTitle = promoParam
+    ? "العروض الخاصة"
+    : selectedCategory
+    ? displayCategories.find(c => c.id === selectedCategory)?.nameAr || "المنتجات"
+    : "جميع المنتجات";
+
   return (
     <Layout>
-      <div className="container py-8">
+      <div className="container py-8 min-h-[60vh]">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <h1 className="text-2xl font-bold">
-            {promoParam ? "العروض الخاصة" : selectedCategory ? displayCategories.find(c => c.id === selectedCategory)?.nameAr || "المنتجات" : "جميع المنتجات"}
+            {pageTitle}
+            {!loading && <span className="text-sm font-normal text-muted-foreground mr-2">({filtered.length} منتج)</span>}
           </h1>
           <div className="flex items-center gap-2">
             <div className="relative">
@@ -108,7 +144,31 @@ const Products = () => {
 
         {/* Results */}
         {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="animate-spin text-muted-foreground" size={32} /></div>
+          /* Skeleton loading grid — looks like real products loading */
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          /* Empty state */
+          <div className="flex flex-col items-center justify-center py-24 gap-4">
+            <PackageSearch size={56} className="text-muted-foreground/30" />
+            <p className="text-lg font-semibold text-muted-foreground">لا توجد منتجات مطابقة</p>
+            {(selectedCategory || selectedBrand || search) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedCategory("");
+                  setSelectedBrand("");
+                  setSearch("");
+                }}
+              >
+                إزالة الفلاتر
+              </Button>
+            )}
+          </div>
         ) : (
           <>
             <p className="text-sm text-muted-foreground mb-4">
@@ -119,13 +179,10 @@ const Products = () => {
                 <ProductCard key={p._id || p.id} product={p} index={i} />
               ))}
             </div>
-            {filtered.length === 0 && (
-              <div className="text-center py-20 text-muted-foreground">لا توجد منتجات مطابقة</div>
-            )}
             {visibleCount < filtered.length && (
               <div className="flex justify-center mt-8">
                 <button
-                  onClick={() => setVisibleCount((v) => v + 8)}
+                  onClick={() => setVisibleCount((v) => v + 16)}
                   className="group flex items-center gap-2 px-8 py-3 rounded-2xl bg-secondary border border-border hover:border-primary/40 hover:bg-primary/10 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
                 >
                   <span>عرض المزيد</span>
