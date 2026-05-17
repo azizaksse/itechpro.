@@ -9,8 +9,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setLoading(false);
-  }, []);
+    const session = localStorage.getItem("adminSession");
+    if (!session) {
+      navigate("/admin-login");
+    } else {
+      setLoading(false);
+    }
+  }, [navigate]);
 
   if (loading) {
     return (
