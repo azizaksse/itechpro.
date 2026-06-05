@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { formatPrice } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import ItemImage from "./ItemImage";
@@ -11,14 +12,29 @@ import { createPortal } from "react-dom";
 
 const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) => {
   const { addItem } = useCart();
+  const { toggleItem, isWishlisted } = useWishlist();
   const { t } = useLanguage();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const wishlisted = isWishlisted(product._id || product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addItem(product);
     toast.success(t("cart.added"));
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleItem(product);
+    if (!wishlisted) {
+      toast.success("تمت إضافة المنتج إلى المفضلة ❤️", {
+        style: { background: "hsl(0 0% 7%)", border: "1px solid hsl(0 72% 51% / 0.3)", color: "hsl(0 0% 95%)" },
+      });
+    } else {
+      toast.info("تمت إزالة المنتج من المفضلة");
+    }
   };
 
   const handleOrderNow = (e: React.MouseEvent) => {
@@ -62,13 +78,27 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
               )}
             </div>
 
-            {/* Stock dot — top right */}
-            {product.inStock && (
-              <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500 stock-pulse" />
-                <span className="text-[10px] text-green-400 font-medium">متوفر</span>
-              </div>
-            )}
+            {/* Wishlist heart — top right */}
+            <button
+              onClick={handleToggleWishlist}
+              aria-label="أضف للمفضلة"
+              className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 btn-press"
+              style={{
+                background: wishlisted ? "hsl(0 72% 51% / 0.15)" : "hsla(0,0%,0%,0.4)",
+                backdropFilter: "blur(6px)",
+                border: wishlisted ? "1px solid hsl(0 72% 51% / 0.5)" : "1px solid hsla(0,0%,100%,0.1)",
+              }}
+            >
+              <Heart
+                size={14}
+                className="transition-all duration-200"
+                style={{
+                  color: wishlisted ? "hsl(0 72% 51%)" : "rgba(255,255,255,0.7)",
+                  fill: wishlisted ? "hsl(0 72% 51%)" : "transparent",
+                  transform: wishlisted ? "scale(1.15)" : "scale(1)",
+                }}
+              />
+            </button>
 
             {/* Product image */}
             <div className="aspect-[4/3] flex items-center justify-center p-4 img-zoom-container">

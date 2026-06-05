@@ -5,8 +5,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/contexts/CartContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import CartDrawer from "@/components/CartDrawer";
+import WishlistDrawer from "@/components/WishlistDrawer";
 import TopProgressBar from "@/components/TopProgressBar";
 import PageTransition from "@/components/PageTransition";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -77,12 +79,15 @@ const App = () => (
       <TooltipProvider>
         <LanguageProvider>
           <CartProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <CartDrawer />
-              <AnimatedRoutes />
-            </BrowserRouter>
+            <WishlistProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <CartDrawer />
+                <WishlistDrawer />
+                <AnimatedRoutes />
+              </BrowserRouter>
+            </WishlistProvider>
           </CartProvider>
         </LanguageProvider>
       </TooltipProvider>

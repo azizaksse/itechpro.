@@ -1,18 +1,24 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ShoppingCart, Heart, User, Menu, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import logo from "@/assets/logo.png";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const { totalItems, setIsOpen } = useCart();
+  const { totalItems: wishlistCount, setIsOpen: setWishlistOpen } = useWishlist();
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -20,6 +26,41 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Close search on route change
+  useEffect(() => {
+    setSearchOpen(false);
+    setSearchValue("");
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const handleSearchSubmit = () => {
+    const q = searchValue.trim();
+    if (!q) {
+      setSearchOpen(false);
+      return;
+    }
+    navigate(`/products?search=${encodeURIComponent(q)}`);
+    setSearchOpen(false);
+    setSearchValue("");
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleSearchSubmit();
+    if (e.key === "Escape") {
+      setSearchOpen(false);
+      setSearchValue("");
+    }
+  };
+
+  const handleSearchToggle = () => {
+    if (searchOpen) {
+      handleSearchSubmit();
+    } else {
+      setSearchOpen(true);
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+  };
 
   const navLinks = [
     { to: "/", label: t("nav.home") },
@@ -72,21 +113,50 @@ const Navbar = () => {
                 className="overflow-hidden"
               >
                 <input
-                  autoFocus
+                  ref={searchInputRef}
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
                   placeholder={t("nav.search")}
                   className="w-full h-9 px-3 rounded-md bg-secondary text-foreground text-sm placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30 transition-colors"
                 />
               </motion.div>
             )}
           </AnimatePresence>
-          <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press">
+          <button
+            id="navbar-search-btn"
+            onClick={handleSearchToggle}
+            title="بحث"
+            className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press"
+          >
             <Search size={18} />
           </button>
           <LanguageSwitcher />
-          <button className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press relative">
-            <Heart size={18} />
+          <button
+            id="navbar-wishlist-btn"
+            onClick={() => setWishlistOpen(true)}
+            title="المفضلة"
+            className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press relative"
+          >
+            <Heart size={18} className={wishlistCount > 0 ? "fill-primary text-primary" : ""} />
+            {wishlistCount > 0 && (
+              <motion.span
+                key={wishlistCount}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring" as const, stiffness: 500, damping: 15 }}
+                className="absolute -top-0.5 -left-0.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold"
+              >
+                {wishlistCount}
+              </motion.span>
+            )}
           </button>
-          <button onClick={() => setIsOpen(true)} className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press relative">
+          <button
+            id="navbar-cart-btn"
+            onClick={() => setIsOpen(true)}
+            title="سلة التسوق"
+            className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press relative"
+          >
             <ShoppingCart size={18} />
             {totalItems > 0 && (
               <motion.span
@@ -100,10 +170,20 @@ const Navbar = () => {
               </motion.span>
             )}
           </button>
-          <button className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press hidden sm:block">
+          <button
+            id="navbar-account-btn"
+            onClick={() => toast.info("تسجيل الدخول قريباً ✨")}
+            title="حسابي"
+            className="p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:scale-105 btn-press hidden sm:block"
+          >
             <User size={18} />
           </button>
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-md text-muted-foreground hover:text-foreground lg:hidden btn-press">
+          <button
+            id="navbar-menu-btn"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            title="القائمة"
+            className="p-2 rounded-md text-muted-foreground hover:text-foreground lg:hidden btn-press"
+          >
             {mobileOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
@@ -119,7 +199,29 @@ const Navbar = () => {
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="lg:hidden overflow-hidden border-t border-secondary"
           >
-            <div className="container py-4 flex flex-col gap-1">
+            {/* Mobile Search */}
+            <div className="container pt-3 pb-1">
+              <div className="relative">
+                <Search size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const q = searchValue.trim();
+                      if (q) {
+                        navigate(`/products?search=${encodeURIComponent(q)}`);
+                        setMobileOpen(false);
+                        setSearchValue("");
+                      }
+                    }
+                  }}
+                  placeholder="ابحث عن منتج..."
+                  className="w-full h-9 pr-9 pl-3 rounded-md bg-secondary text-foreground text-sm placeholder:text-muted-foreground outline-none border border-transparent focus:border-primary/30 transition-colors"
+                />
+              </div>
+            </div>
+            <div className="container py-3 flex flex-col gap-1">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.to}

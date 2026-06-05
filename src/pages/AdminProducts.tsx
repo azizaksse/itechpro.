@@ -160,7 +160,7 @@ const AdminProducts = () => {
               </thead>
               <tbody className="divide-y divide-secondary/5 font-medium">
                 {products === undefined ? (
-                  <tr><td colSpan={7} className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></td></tr>
+                  <tr><td colSpan={9} className="p-20 text-center"><Loader2 className="animate-spin mx-auto text-primary" /></td></tr>
                 ) : filtered.map((p) => (
                   <tr key={p._id} className="hover:bg-secondary/30 transition-colors group">
                     <td className="p-4">
@@ -178,14 +178,18 @@ const AdminProducts = () => {
                     <td className="p-4">
                       {(p as any).colors && (p as any).colors.length > 0 ? (
                         <div className="flex items-center gap-1 flex-wrap">
-                          {((p as any).colors as string[]).slice(0, 5).map((hex: string) => (
-                            <span
-                              key={hex}
-                              title={hex}
-                              className="w-5 h-5 rounded-full border-2 border-white/20 shadow-sm shrink-0"
-                              style={{ backgroundColor: hex }}
-                            />
-                          ))}
+                          {((p as any).colors as any[]).slice(0, 5).map((c: any, idx: number) => {
+                            const hex = typeof c === "string" ? c.split("|")[0] : c.hex;
+                            const label = typeof c === "string" ? c.split("|")[1] || c : c.label;
+                            return (
+                              <span
+                                key={idx}
+                                title={label}
+                                className="w-5 h-5 rounded-full border-2 border-white/20 shadow-sm shrink-0"
+                                style={{ backgroundColor: hex }}
+                              />
+                            );
+                          })}
                           {(p as any).colors.length > 5 && (
                             <span className="text-[10px] text-muted-foreground">+{(p as any).colors.length - 5}</span>
                           )}

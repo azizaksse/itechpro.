@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { categories } from "@/data/products";
-import { X, Upload, Loader2, Save, Palette, Ruler, Plus } from "lucide-react";
+import { X, Loader2, Save, Palette, Ruler, Plus } from "lucide-react";
 import SpecsField from "./SpecsField";
+import GalleryField from "./GalleryField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,7 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
 
   const [sizes, setSizes] = useState<string[]>([]);
   const [sizeInput, setSizeInput] = useState("");
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
   useEffect(() => {
     if (product) {
@@ -82,6 +84,13 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
       }
       
       setSizes(product.sizes || []);
+      // Load existing gallery — ensure principal is in the array
+      const existingImages: string[] = product.images || [];
+      const principalImg: string = product.image || "";
+      const merged = principalImg && !existingImages.includes(principalImg)
+        ? [principalImg, ...existingImages]
+        : existingImages;
+      setGalleryImages(merged);
       setErrors({});
     }
   }, [product]);
@@ -137,24 +146,8 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
   const removeSize = (s: string) => setSizes((prev) => prev.filter((x) => x !== s));
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const postUrl = await generateUploadUrl();
-      const result = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      const { storageId } = await result.json();
-      updateField("image", storageId);
-      toast.success("تم رفع الصورة الرئيسية بنجاح ✅");
-    } catch {
-      toast.error("فشل رفع الصورة");
-    } finally {
-      setUploading(false);
-    }
+    // kept for color uploads only — main image now via GalleryField
+    e.target.value = "";
   };
 
   const validate = (): boolean => {
@@ -180,8 +173,8 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
         oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
         category: form.category,
         brand: form.brand,
-        image: form.image || "",
-        images: [form.image || ""],
+        image: form.image || galleryImages[0] || "",
+        images: galleryImages.length > 0 ? galleryImages : (form.image ? [form.image] : []),
         inStock: Number(form.stockQuantity) > 0,
         stockQuantity: Number(form.stockQuantity),
         isActive: form.isActive,
@@ -230,23 +223,13 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
             />
           </div>
 
-          <div className="space-y-1.5 focus-within:text-primary transition-colors">
-            <Label className="flex items-center gap-2"><Upload size={14} /> صورة المنتج</Label>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <Input placeholder="انسخ رابط الصورة هنا..." value={form.image} onChange={(e) => updateField("image", e.target.value)} className="flex-1" dir="ltr" />
-                <Button type="button" variant="outline" className="relative overflow-hidden shrink-0 border-dashed hover:border-primary/50" disabled={uploading}>
-                  {uploading ? <Loader2 size={16} className="animate-spin" /> : "رفع صورة"}
-                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileUpload} accept="image/*" />
-                </Button>
-              </div>
-              {form.image && (
-                <div className="w-full h-32 rounded-xl border border-border overflow-hidden bg-secondary/30 flex items-center justify-center p-2 group transition-all hover:bg-secondary/50">
-                  <ItemImage src={form.image} className="h-full object-contain transition-transform group-hover:scale-105" />
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Gallery with principal image picker */}
+          <GalleryField
+            principalImage={form.image}
+            galleryImages={galleryImages}
+            onPrincipalChange={(id) => updateField("image", id)}
+            onGalleryChange={setGalleryImages}
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

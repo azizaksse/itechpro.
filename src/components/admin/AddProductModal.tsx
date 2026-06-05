@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { categories } from "@/data/products";
-import { X, Upload, Loader2, Plus, Palette, Ruler } from "lucide-react";
+import { X, Loader2, Plus, Palette, Ruler } from "lucide-react";
 import SpecsField from "./SpecsField";
+import GalleryField from "./GalleryField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,12 +35,13 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
     oldPrice: "",
     category: "accessories",
     brand: "",
-    image: "",
+    image: "",       // principal image
     stockQuantity: "1",
     isActive: true,
     isNew: false,
     isPromo: false,
   });
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [specs, setSpecs] = useState<Record<string, string>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -108,24 +110,8 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
   const removeSize = (s: string) => setSizes((prev) => prev.filter((x) => x !== s));
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const postUrl = await generateUploadUrl();
-      const result = await fetch(postUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      const { storageId } = await result.json();
-      updateField("image", storageId);
-      toast.success("تم رفع الصورة الأساسية بنجاح ✅");
-    } catch {
-      toast.error("فشل رفع الصورة");
-    } finally {
-      setUploading(false);
-    }
+    // kept for color uploads only — main image now via GalleryField
+    e.target.value = "";
   };
 
   const validate = (): boolean => {
@@ -150,15 +136,15 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
         oldPrice: form.oldPrice ? Number(form.oldPrice) : undefined,
         category: form.category,
         brand: form.brand,
-        image: form.image || "",
-        images: [form.image || ""],
+        image: form.image || galleryImages[0] || "",
+        images: galleryImages.length > 0 ? galleryImages : (form.image ? [form.image] : []),
         inStock: Number(form.stockQuantity) > 0,
         stockQuantity: Number(form.stockQuantity),
         isActive: form.isActive,
         isNew: form.isNew,
         isPromo: form.isPromo,
         specs: specs,
-        colors: colors.length > 0 ? colors : undefined, // passing full array of objects
+        colors: colors.length > 0 ? colors : undefined,
         sizes: sizes.length > 0 ? sizes : undefined,
       });
       toast.success("تم إضافة المنتج بنجاح 🎉");
@@ -166,6 +152,7 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
       onClose();
       // Reset
       setForm({ name: "", nameAr: "", description: "", descriptionAr: "", price: "", oldPrice: "", category: "accessories", brand: "", image: "", stockQuantity: "1", isActive: true, isNew: false, isPromo: false });
+      setGalleryImages([]);
       setSpecs({});
       setErrors({});
       setColors([]);
@@ -209,23 +196,13 @@ const AddProductModal = ({ open, onClose, onProductAdded }: AddProductModalProps
             />
           </div>
 
-          <div className="space-y-1.5 focus-within:text-primary transition-colors">
-            <Label className="flex items-center gap-2"><Upload size={14} /> صورة المنتج الرئيسية *</Label>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <Input placeholder="انسخ رابط الصورة هنا..." value={form.image} onChange={(e) => updateField("image", e.target.value)} className="flex-1" dir="ltr" />
-                <Button type="button" variant="outline" className="relative overflow-hidden shrink-0 border-dashed hover:border-primary/50" disabled={uploading}>
-                  {uploading ? <Loader2 size={16} className="animate-spin" /> : "رفع ملف"}
-                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileUpload} accept="image/*" />
-                </Button>
-              </div>
-              {form.image && (
-                <div className="w-full h-32 rounded-xl border border-border overflow-hidden bg-secondary/30 flex items-center justify-center p-2 group transition-all hover:bg-secondary/50">
-                  <ItemImage src={form.image} className="h-full object-contain transition-transform group-hover:scale-105" />
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Gallery with principal image picker */}
+          <GalleryField
+            principalImage={form.image}
+            galleryImages={galleryImages}
+            onPrincipalChange={(id) => updateField("image", id)}
+            onGalleryChange={setGalleryImages}
+          />
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">

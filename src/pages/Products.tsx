@@ -37,6 +37,7 @@ const Products = () => {
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
   const promoParam = searchParams.get("promo");
+  const searchParam = searchParams.get("search") || "";
 
   const { products, loading } = useProducts();
   const convexCategories = useQuery(api.categories.getActiveCategories);
@@ -49,17 +50,21 @@ const Products = () => {
       }))
     : categories;
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(searchParam);
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "");
   const [selectedBrand, setSelectedBrand] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(16);
 
-  // Sync category param changes (e.g. navigating from categories section)
+  // Sync category & search param changes (e.g. navigating from Navbar search)
   useEffect(() => {
     setSelectedCategory(categoryParam || "");
   }, [categoryParam]);
+
+  useEffect(() => {
+    setSearch(searchParam);
+  }, [searchParam]);
 
   // Reset visible count whenever filters or search change
   useEffect(() => {

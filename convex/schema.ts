@@ -20,18 +20,21 @@ export default defineSchema({
     isPromo: v.boolean(),
     rating: v.optional(v.number()),
     reviews: v.optional(v.number()),
-    specs: v.optional(v.any()), // Can be Record<string, string>
+    specs: v.optional(v.any()),
     colors: v.optional(
       v.array(
         v.object({
           hex: v.string(),
           label: v.string(),
-          imageId: v.optional(v.string()), // For linking image to color
+          imageId: v.optional(v.string()),
         })
       )
     ),
-    sizes: v.optional(v.array(v.string())),  // e.g. ["35cm", "40cm"]
-  }),
+    sizes: v.optional(v.array(v.string())),
+  })
+    .index("by_category", ["category"])
+    .index("by_isActive", ["isActive"])
+    .index("by_category_active", ["category", "isActive"]),
   orders: defineTable({
     customerFirstName: v.string(),
     customerLastName: v.string(),
@@ -55,12 +58,12 @@ export default defineSchema({
   }).index("by_code", ["wilayaCode"]),
   orderItems: defineTable({
     orderId: v.id("orders"),
-    productId: v.string(), // Static ID or Convex ID string
+    productId: v.string(),
     productName: v.string(),
     productImage: v.optional(v.string()),
     price: v.number(),
     quantity: v.number(),
-  }),
+  }).index("by_orderId", ["orderId"]),
   members: defineTable({
     name: v.string(),
     phone: v.optional(v.string()),
