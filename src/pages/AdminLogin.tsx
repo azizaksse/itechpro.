@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Lock, Mail, Eye, EyeOff } from "lucide-react";
+import { Lock, User, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
+const ADMIN_USERNAME = "itech1919";
+const ADMIN_PASSWORD = "2001#06Nass";
+
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -14,16 +17,15 @@ const AdminLogin = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simple mock login logic
+
     setTimeout(() => {
       setLoading(false);
-      if (email === "admin@itechpro.com" && password === "admin123") {
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         localStorage.setItem("adminSession", "true");
         toast.success("تم تسجيل الدخول بنجاح");
         navigate("/admin");
       } else {
-        toast.error("بيانات الدخول غير صحيحة");
+        toast.error("اسم المستخدم أو كلمة المرور غير صحيحة");
       }
     }, 1000);
   };
@@ -36,17 +38,17 @@ const AdminLogin = () => {
             <Lock size={28} className="text-primary" />
           </div>
           <h1 className="text-2xl font-bold">لوحة التحكم</h1>
-          <p className="text-muted-foreground text-sm mt-1">تسجيل دخول المسؤول (Demo: admin@itechpro.com / admin123)</p>
+          <p className="text-muted-foreground text-sm mt-1">تسجيل دخول المسؤول</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="relative">
-            <Mail size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <User size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
-              type="email"
-              placeholder="البريد الإلكتروني"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="اسم المستخدم"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full pr-10 pl-4 py-3 rounded-xl bg-secondary/50 border border-secondary text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
               required
               dir="ltr"

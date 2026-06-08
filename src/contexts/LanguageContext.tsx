@@ -29,6 +29,7 @@ const translations: Record<string, Record<Language, string>> = {
   "nav.about": { ar: "من نحن", fr: "À propos", en: "About" },
   "nav.contact": { ar: "اتصل بنا", fr: "Contact", en: "Contact" },
   "nav.faq": { ar: "الأسئلة الشائعة", fr: "FAQ", en: "FAQ" },
+  "nav.delivery": { ar: "الضمان والتوصيل", fr: "Garantie & Livraison", en: "Warranty & Delivery" },
   "nav.search": { ar: "ابحث عن منتج...", fr: "Rechercher un produit...", en: "Search a product..." },
 
   // Hero

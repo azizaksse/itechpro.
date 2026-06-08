@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShoppingCart, Package, LogOut, BarChart3, Users, Settings, FileText, Truck, Megaphone, Star, LayoutGrid } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Package, LogOut, BarChart3, Users, Settings, FileText, Truck, Megaphone, Star, LayoutGrid, Mail } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -18,6 +18,7 @@ const items = [
   { title: "المنتجات", url: "/admin/products", icon: Package },
   { title: "الفواتير", url: "/admin/invoices", icon: FileText },
   { title: "العملاء", url: "/admin/members", icon: Users },
+  { title: "الرسائل", url: "/admin/messages", icon: Mail },
   { title: "التقارير", url: "/admin/reports", icon: BarChart3 },
   { title: "الإعدادات", url: "/admin/settings", icon: Settings },
   { title: "التوصيل", url: "/admin/delivery", icon: Truck },
