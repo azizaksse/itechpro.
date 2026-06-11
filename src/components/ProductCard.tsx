@@ -125,6 +125,13 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
               {product.nameAr}
             </h3>
 
+            {/* Short description */}
+            {(product.descriptionAr || product.description) && (
+              <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed -mt-1">
+                {product.descriptionAr || product.description}
+              </p>
+            )}
+
             {/* Price row */}
             <div className="flex items-baseline gap-2 flex-wrap mt-auto">
               {product.oldPrice && (

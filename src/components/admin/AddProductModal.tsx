@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { categories } from "@/data/products";
-import { X, Loader2, Plus, Palette, Ruler } from "lucide-react";
+import { X, Loader2, Plus, Palette, Ruler, Upload } from "lucide-react";
 import SpecsField from "./SpecsField";
 import GalleryField from "./GalleryField";
 import { Button } from "@/components/ui/button";

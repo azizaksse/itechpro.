@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { categories } from "@/data/products";
-import { X, Loader2, Save, Palette, Ruler, Plus } from "lucide-react";
+import { X, Loader2, Save, Palette, Ruler, Plus, Upload } from "lucide-react";
 import SpecsField from "./SpecsField";
 import GalleryField from "./GalleryField";
 import { Button } from "@/components/ui/button";

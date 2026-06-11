@@ -53,10 +53,10 @@ const Contact = () => {
             {/* Info */}
             <div className="space-y-4">
               {[
-                { icon: Phone, label: "الهاتف", value: "0555 00 00 00" },
-                { icon: MessageCircle, label: "واتساب", value: "0555 00 00 00" },
-                { icon: Mail, label: "البريد الإلكتروني", value: "contact@itechpro.dz" },
-                { icon: MapPin, label: "العنوان", value: "الجزائر" },
+                { icon: Phone, label: "الهاتف", value: "0772 06 13 98", href: "tel:0772061398" },
+                { icon: MessageCircle, label: "واتساب", value: "+213 551 13 87 81", href: "https://wa.me/213551138781" },
+                { icon: Mail, label: "البريد الإلكتروني", value: "xdp51919@gmail.com", href: "mailto:xdp51919@gmail.com" },
+                { icon: MapPin, label: "العنوان", value: "الجزائر", href: null },
               ].map((item, i) => (
                 <div key={i} className="glass-card rounded-xl p-4 flex items-center gap-4">
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -64,7 +64,13 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">{item.label}</p>
-                    <p className="text-sm font-medium">{item.value}</p>
+                    {item.href ? (
+                      <a href={item.href} className="text-sm font-medium hover:text-primary transition-colors">
+                        <span dir="ltr" className="font-mono tracking-wide">{item.value}</span>
+                      </a>
+                    ) : (
+                      <p className="text-sm font-medium">{item.value}</p>
+                    )}
                   </div>
                 </div>
               ))}

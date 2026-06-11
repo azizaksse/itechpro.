@@ -222,6 +222,16 @@ const ProductDetail = () => {
               )}
             </div>
 
+            {/* Description */}
+            {((product as any).descriptionAr || (product as any).description) && (
+              <div className="mb-6 p-4 rounded-xl bg-secondary/20 border border-border/50">
+                <h3 className="text-sm font-bold mb-2 text-muted-foreground">وصف المنتج</h3>
+                <p className="text-sm leading-7 text-foreground/80 whitespace-pre-line">
+                  {(product as any).descriptionAr || (product as any).description}
+                </p>
+              </div>
+            )}
+
             {/* Colors variant picker */}
             {normalizedColors.length > 0 && (
               <div className="mb-6">

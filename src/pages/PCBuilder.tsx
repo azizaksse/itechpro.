@@ -3,12 +3,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Cpu, MonitorDot, HardDrive, CircuitBoard, Battery, Box, Fan,
   Trash2, Zap, Keyboard, Mouse, Headphones, ShoppingCart,
-  RotateCcw, ChevronLeft, CheckCircle2
+  RotateCcw, ChevronLeft, CheckCircle2, Loader2, PackageSearch,
 } from "lucide-react";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
-import { products, formatPrice } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import CheckoutModal from "@/components/CheckoutModal";
+import ItemImage from "@/components/ItemImage";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 interface BuildSlot {
   id: string;
@@ -16,7 +19,7 @@ interface BuildSlot {
   subtitleAr: string;
   icon: any;
   category: string;
-  selected: string | null;
+  selected: string | null; // Convex _id
 }
 
 const initialSlots: BuildSlot[] = [
@@ -39,32 +42,60 @@ const PCBuilder = () => {
   const [activeSlot, setActiveSlot] = useState<string | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
+  // ── Fetch real products from Convex ──
+  const allProducts = useQuery(api.products.getActiveProducts);
+  const isLoading = allProducts === undefined;
+
+  const activeSlotData = slots.find((s) => s.id === activeSlot);
+
+  // Products available for the currently active slot (filtered by category)
+  const availableProducts = useMemo(() => {
+    if (!activeSlotData || !allProducts) return [];
+    return allProducts.filter((p) => p.category === activeSlotData.category);
+  }, [activeSlotData, allProducts]);
+
+  // Total price from real products
   const totalPrice = useMemo(() => {
+    if (!allProducts) return 0;
     return slots.reduce((sum, slot) => {
       if (slot.selected) {
-        const p = products.find((pr) => pr.id === slot.selected);
+        const p = allProducts.find((pr) => pr._id === slot.selected);
         return sum + (p?.price || 0);
       }
       return sum;
     }, 0);
-  }, [slots]);
+  }, [slots, allProducts]);
 
   const selectedCount = slots.filter((s) => s.selected).length;
 
-  const activeSlotData = slots.find((s) => s.id === activeSlot);
-  const availableProducts = activeSlotData
-    ? products.filter((p) => p.category === activeSlotData.category)
-    : [];
-
   // Build checkout items from selected slots
   const checkoutItems = useMemo(() => {
+    if (!allProducts) return [];
     return slots
       .filter((s) => s.selected)
       .map((s) => {
-        const p = products.find((pr) => pr.id === s.selected)!;
+        const p = allProducts.find((pr) => pr._id === s.selected)!;
         return { product: p, quantity: 1 };
-      });
-  }, [slots]);
+      })
+      .filter((item) => item.product);
+  }, [slots, allProducts]);
+
+  // Total estimated wattage from specs
+  const totalWattage = useMemo(() => {
+    if (!allProducts) return 0;
+    let w = 0;
+    slots.forEach((s) => {
+      if (s.selected) {
+        const p = allProducts.find((pr) => pr._id === s.selected);
+        const power = p?.specs?.["الطاقة"] || p?.specs?.["القدرة"];
+        if (power) {
+          const num = parseInt(power);
+          if (!isNaN(num)) w += num;
+        }
+      }
+    });
+    return w;
+  }, [slots, allProducts]);
 
   const selectProduct = (productId: string) => {
     setSlots((prev) =>
@@ -83,21 +114,6 @@ const PCBuilder = () => {
     setSlots(initialSlots.map((s) => ({ ...s, selected: null })));
     setActiveSlot(null);
   };
-
-  const totalWattage = useMemo(() => {
-    let w = 0;
-    slots.forEach((s) => {
-      if (s.selected) {
-        const p = products.find((pr) => pr.id === s.selected);
-        const power = p?.specs?.["الطاقة"] || p?.specs?.["القدرة"];
-        if (power) {
-          const num = parseInt(power);
-          if (!isNaN(num)) w += num;
-        }
-      }
-    });
-    return w;
-  }, [slots]);
 
   return (
     <Layout>
@@ -126,255 +142,324 @@ const PCBuilder = () => {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-muted-foreground text-base max-w-lg mx-auto"
           >
-            اختر القطع المتوافقة واحصل على أفضل تجميعة بأسعار لا تُنافس
+            اختر القطع المتوافقة من منتجاتنا الحقيقية واحصل على أفضل تجميعة بأسعار لا تُنافس
           </motion.p>
         </div>
       </div>
 
       <div className="container py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-24 gap-4 text-muted-foreground">
+            <Loader2 size={36} className="animate-spin text-primary" />
+            <p className="text-sm">جاري تحميل المنتجات...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
 
-          {/* ───── Left: Component Cards ───── */}
-          <div>
-            <AnimatePresence mode="wait">
-              {activeSlot && availableProducts.length > 0 ? (
-                <motion.div
-                  key="picker"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <button
-                    onClick={() => setActiveSlot(null)}
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors"
+            {/* ───── Left: Component Cards ───── */}
+            <div>
+              <AnimatePresence mode="wait">
+                {activeSlot ? (
+                  <motion.div
+                    key="picker"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.25 }}
                   >
-                    <ChevronLeft size={16} />
-                    <span>العودة للقائمة</span>
-                  </button>
+                    <button
+                      onClick={() => setActiveSlot(null)}
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-5 transition-colors"
+                    >
+                      <ChevronLeft size={16} />
+                      <span>العودة للقائمة</span>
+                    </button>
 
-                  <h2 className="text-lg font-bold mb-4">
-                    اختر {activeSlotData?.nameAr}
-                  </h2>
+                    <h2 className="text-lg font-bold mb-4">
+                      اختر {activeSlotData?.nameAr}
+                    </h2>
 
-                  <div className="space-y-3">
-                    {availableProducts.map((p) => (
-                      <motion.button
-                        key={p.id}
-                        layout
-                        onClick={() => selectProduct(p.id)}
-                        className="w-full flex items-center gap-4 p-4 rounded-xl text-right glass-card glass-card-hover transition-all"
-                        whileTap={{ scale: 0.98 }}
+                    {availableProducts.length === 0 ? (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.97 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="glass-card rounded-2xl p-12 text-center flex flex-col items-center gap-4"
                       >
-                        <img
-                          src={p.image}
-                          alt={p.nameAr}
-                          className="w-14 h-14 rounded-lg object-cover shrink-0 border border-border/20"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-sm truncate">{p.nameAr}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{p.brand}</p>
+                        <PackageSearch size={40} className="text-muted-foreground/40" />
+                        <div>
+                          <p className="font-semibold text-foreground mb-1">
+                            لا توجد منتجات في هذه الفئة حالياً
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            أضف منتجات من لوحة التحكم لتظهر هنا
+                          </p>
                         </div>
-                        <span className="text-sm font-bold text-primary shrink-0">
-                          {formatPrice(p.price)}
-                        </span>
-                      </motion.button>
-                    ))}
-
-                    {availableProducts.length === 0 && (
-                      <div className="glass-card rounded-xl p-8 text-center text-muted-foreground text-sm">
-                        لا توجد منتجات في هذه الفئة حالياً
+                        <button
+                          onClick={() => setActiveSlot(null)}
+                          className="mt-2 text-xs text-primary hover:underline"
+                        >
+                          العودة للتجميعة
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <div className="space-y-3">
+                        {availableProducts.map((p) => (
+                          <motion.button
+                            key={p._id}
+                            layout
+                            onClick={() => selectProduct(p._id)}
+                            className="w-full flex items-center gap-4 p-4 rounded-xl text-right glass-card glass-card-hover transition-all"
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {/* Product image */}
+                            <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 border border-border/20 bg-secondary/30">
+                              <ItemImage
+                                src={p.image}
+                                alt={p.nameAr || p.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0 text-right">
+                              <p className="font-semibold text-sm truncate">
+                                {p.nameAr || p.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {p.brand}
+                              </p>
+                              {!p.inStock && (
+                                <span className="text-[10px] text-red-400 font-medium">
+                                  غير متوفر
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-1 shrink-0">
+                              <span className="text-sm font-bold text-primary">
+                                {formatPrice(p.price)}
+                              </span>
+                              {p.oldPrice && (
+                                <span className="text-xs text-muted-foreground line-through">
+                                  {formatPrice(p.oldPrice)}
+                                </span>
+                              )}
+                            </div>
+                          </motion.button>
+                        ))}
                       </div>
                     )}
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="slots"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.25 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-                >
-                  {slots.map((slot, i) => {
-                    const selectedProduct = slot.selected
-                      ? products.find((p) => p.id === slot.selected)
-                      : null;
-                    const Icon = slot.icon;
-                    const isSelected = !!selectedProduct;
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="slots"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.25 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                  >
+                    {slots.map((slot, i) => {
+                      const selectedProduct = slot.selected && allProducts
+                        ? allProducts.find((p) => p._id === slot.selected)
+                        : null;
+                      const Icon = slot.icon;
+                      const isSelected = !!selectedProduct;
 
-                    return (
-                      <motion.div
-                        key={slot.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.04, duration: 0.3 }}
-                        className={`relative rounded-2xl border transition-all duration-200 p-5 flex flex-col gap-4
-                          ${isSelected
-                            ? "border-primary/40 bg-primary/5 shadow-[0_0_20px_hsl(0_72%_51%/0.08)]"
-                            : "border-border/40 bg-card hover:border-primary/30 hover:bg-card/80"
-                          }`}
-                      >
-                        {isSelected && (
-                          <CheckCircle2
-                            size={16}
-                            className="absolute top-4 left-4 text-primary"
-                          />
-                        )}
+                      // Count how many real products exist for this slot category
+                      const categoryCount = allProducts
+                        ? allProducts.filter((p) => p.category === slot.category).length
+                        : 0;
 
-                        <div
-                          className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0
-                            ${isSelected ? "bg-primary/15" : "bg-secondary"}`}
+                      return (
+                        <motion.div
+                          key={slot.id}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.04, duration: 0.3 }}
+                          className={`relative rounded-2xl border transition-all duration-200 p-5 flex flex-col gap-4
+                            ${isSelected
+                              ? "border-primary/40 bg-primary/5 shadow-[0_0_20px_hsl(0_72%_51%/0.08)]"
+                              : "border-border/40 bg-card hover:border-primary/30 hover:bg-card/80"
+                            }`}
                         >
-                          <Icon
-                            size={26}
-                            className={isSelected ? "text-primary" : "text-muted-foreground"}
-                          />
-                        </div>
-
-                        <div className="flex-1">
-                          <h3 className="font-bold text-base leading-tight">{slot.nameAr}</h3>
-                          {selectedProduct ? (
-                            <p className="text-xs text-primary mt-1 font-medium truncate">
-                              {selectedProduct.nameAr}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {slot.subtitleAr}
-                            </p>
+                          {isSelected && (
+                            <CheckCircle2
+                              size={16}
+                              className="absolute top-4 left-4 text-primary"
+                            />
                           )}
-                        </div>
 
-                        <div className="flex items-center justify-between gap-2 mt-auto">
-                          {selectedProduct && (
-                            <span className="text-sm font-bold text-primary">
-                              {formatPrice(selectedProduct.price)}
-                            </span>
-                          )}
-                          <div className="flex items-center gap-2 mr-auto">
-                            {selectedProduct && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeProduct(slot.id);
-                                }}
-                                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          <div className="flex items-start gap-3">
+                            {/* Icon or selected product image */}
+                            {isSelected && selectedProduct?.image ? (
+                              <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-primary/20 bg-secondary/30">
+                                <ItemImage
+                                  src={selectedProduct.image}
+                                  alt={selectedProduct.nameAr || selectedProduct.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0
+                                  ${isSelected ? "bg-primary/15" : "bg-secondary"}`}
                               >
-                                <Trash2 size={13} />
-                              </button>
+                                <Icon
+                                  size={26}
+                                  className={isSelected ? "text-primary" : "text-muted-foreground"}
+                                />
+                              </div>
                             )}
-                            <button
-                              onClick={() => setActiveSlot(slot.id)}
-                              className={`px-4 py-1.5 rounded-lg text-xs font-semibold border transition-all
-                                ${isSelected
-                                  ? "border-primary/50 text-primary hover:bg-primary/10"
-                                  : "border-border/60 text-foreground hover:border-primary/50 hover:text-primary"
-                                }`}
-                            >
-                              {isSelected ? "تغيير" : "اختر"}
-                            </button>
+
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-base leading-tight">{slot.nameAr}</h3>
+                              {selectedProduct ? (
+                                <p className="text-xs text-primary mt-1 font-medium truncate">
+                                  {selectedProduct.nameAr || selectedProduct.name}
+                                </p>
+                              ) : (
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {categoryCount > 0
+                                    ? `${categoryCount} منتج متاح`
+                                    : "لا توجد منتجات حالياً"}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </motion.div>
+
+                          <div className="flex items-center justify-between gap-2 mt-auto">
+                            {selectedProduct && (
+                              <span className="text-sm font-bold text-primary">
+                                {formatPrice(selectedProduct.price)}
+                              </span>
+                            )}
+                            <div className="flex items-center gap-2 mr-auto">
+                              {selectedProduct && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeProduct(slot.id);
+                                  }}
+                                  className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                              <button
+                                onClick={() => setActiveSlot(slot.id)}
+                                disabled={categoryCount === 0 && !isSelected}
+                                className={`px-4 py-1.5 rounded-lg text-xs font-semibold border transition-all disabled:opacity-40 disabled:cursor-not-allowed
+                                  ${isSelected
+                                    ? "border-primary/50 text-primary hover:bg-primary/10"
+                                    : categoryCount > 0
+                                      ? "border-border/60 text-foreground hover:border-primary/50 hover:text-primary"
+                                      : "border-border/30 text-muted-foreground"
+                                  }`}
+                              >
+                                {isSelected ? "تغيير" : categoryCount > 0 ? "اختر" : "—"}
+                              </button>
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* ───── Right: Sticky Summary Sidebar ───── */}
+            <div className="sticky top-20 space-y-4">
+              <div className="glass-card rounded-2xl p-5 border border-border/40">
+                <div className="flex items-center justify-between mb-5">
+                  <h3 className="text-base font-bold">تجميعتك</h3>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                    {selectedCount} / {slots.length}
+                  </span>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-1.5 bg-secondary rounded-full mb-5 overflow-hidden">
+                  <motion.div
+                    className="h-full bg-primary rounded-full"
+                    animate={{ width: `${(selectedCount / slots.length) * 100}%` }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </div>
+
+                {/* Selected components list */}
+                <div className="space-y-2 mb-5 max-h-72 overflow-y-auto scrollbar-thin pr-1">
+                  {slots.map((s) => {
+                    const p = s.selected && allProducts
+                      ? allProducts.find((pr) => pr._id === s.selected)
+                      : null;
+                    const Icon = s.icon;
+                    return (
+                      <div key={s.id} className="flex items-center gap-2 text-xs">
+                        <Icon
+                          size={13}
+                          className={p ? "text-primary shrink-0" : "text-muted-foreground/40 shrink-0"}
+                        />
+                        <span
+                          className={`flex-1 truncate ${p ? "text-foreground" : "text-muted-foreground/50"}`}
+                        >
+                          {p ? (p.nameAr || p.name) : s.nameAr}
+                        </span>
+                        {p && (
+                          <span className="font-semibold text-primary shrink-0">
+                            {formatPrice(p.price)}
+                          </span>
+                        )}
+                      </div>
                     );
                   })}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+                </div>
 
-          {/* ───── Right: Sticky Summary Sidebar ───── */}
-          <div className="sticky top-20 space-y-4">
-            <div className="glass-card rounded-2xl p-5 border border-border/40">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-bold">تجميعتك</h3>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
-                  {selectedCount} / {slots.length}
-                </span>
-              </div>
-
-              {/* Progress bar */}
-              <div className="w-full h-1.5 bg-secondary rounded-full mb-5 overflow-hidden">
-                <motion.div
-                  className="h-full bg-primary rounded-full"
-                  animate={{ width: `${(selectedCount / slots.length) * 100}%` }}
-                  transition={{ duration: 0.4 }}
-                />
-              </div>
-
-              {/* Selected components list */}
-              <div className="space-y-2 mb-5 max-h-72 overflow-y-auto scrollbar-thin pr-1">
-                {slots.map((s) => {
-                  const p = s.selected ? products.find((pr) => pr.id === s.selected) : null;
-                  const Icon = s.icon;
-                  return (
-                    <div key={s.id} className="flex items-center gap-2 text-xs">
-                      <Icon
-                        size={13}
-                        className={p ? "text-primary shrink-0" : "text-muted-foreground/40 shrink-0"}
-                      />
-                      <span
-                        className={`flex-1 truncate ${p ? "text-foreground" : "text-muted-foreground/50"}`}
-                      >
-                        {p ? p.nameAr : s.nameAr}
-                      </span>
-                      {p && (
-                        <span className="font-semibold text-primary shrink-0">
-                          {formatPrice(p.price)}
-                        </span>
-                      )}
+                {/* Totals */}
+                <div className="border-t border-border/30 pt-4 space-y-2 mb-5">
+                  {totalWattage > 0 && (
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>الطاقة التقديرية</span>
+                      <span className="font-mono">{totalWattage} W</span>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* Totals */}
-              <div className="border-t border-border/30 pt-4 space-y-2 mb-5">
-                {totalWattage > 0 && (
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>الطاقة التقديرية</span>
-                    <span className="font-mono">{totalWattage} W</span>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold">المجموع</span>
+                    <span className="text-xl font-bold text-primary">
+                      {totalPrice > 0 ? formatPrice(totalPrice) : "—"}
+                    </span>
                   </div>
-                )}
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-bold">المجموع</span>
-                  <span className="text-xl font-bold text-primary">
-                    {totalPrice > 0 ? formatPrice(totalPrice) : "—"}
-                  </span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                  <Button
+                    variant="hero"
+                    className="w-full pulse-glow"
+                    disabled={selectedCount === 0}
+                    onClick={() => setCheckoutOpen(true)}
+                  >
+                    <ShoppingCart size={15} className="ml-2" />
+                    اطلب التجميعة
+                  </Button>
+                  <button
+                    onClick={resetBuild}
+                    className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-destructive transition-colors py-2"
+                  >
+                    <RotateCcw size={12} />
+                    إعادة تعيين التجميعة
+                  </button>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                <Button
-                  variant="hero"
-                  className="w-full pulse-glow"
-                  disabled={selectedCount === 0}
-                  onClick={() => setCheckoutOpen(true)}
-                >
-                  <ShoppingCart size={15} className="ml-2" />
-                  اطلب التجميعة
-                </Button>
-                <button
-                  onClick={resetBuild}
-                  className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-destructive transition-colors py-2"
-                >
-                  <RotateCcw size={12} />
-                  إعادة تعيين التجميعة
-                </button>
+              {/* Tips card */}
+              <div className="rounded-2xl border border-border/30 p-4 bg-primary/5">
+                <p className="text-xs text-muted-foreground leading-relaxed text-center">
+                  💡 انقر على زر <strong className="text-foreground">"اختر"</strong> لتحديد القطعة من منتجات متجرنا الحقيقية
+                </p>
               </div>
             </div>
 
-            {/* Tips card */}
-            <div className="rounded-2xl border border-border/30 p-4 bg-primary/5">
-              <p className="text-xs text-muted-foreground leading-relaxed text-center">
-                💡 انقر على أي بطاقة أو زر <strong className="text-foreground">"اختر"</strong> لتحديد القطعة المناسبة
-              </p>
-            </div>
           </div>
-
-        </div>
+        )}
       </div>
 
       {/* Checkout Modal */}

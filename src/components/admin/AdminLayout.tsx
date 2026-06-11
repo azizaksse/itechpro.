@@ -42,13 +42,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="relative hidden sm:block">
-                <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  placeholder="بحث..."
-                  className="bg-card/60 border border-border rounded-full h-10 pr-10 pl-4 text-xs focus:bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all w-48 lg:w-64 text-foreground placeholder:text-muted-foreground"
-                />
-              </div>
+              {/* search moved to each page */}
               <button className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:text-primary transition-colors shadow-sm active:scale-95">
                 <Bell size={18} />
               </button>

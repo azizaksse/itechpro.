@@ -127,8 +127,14 @@ const Footer = () => {
             <div>
               <h4 className="font-bold mb-4 text-sm">تواصل معنا</h4>
               <div className="flex flex-col gap-2 text-sm text-muted-foreground mb-5">
-                <a href="tel:0772061398" className="hover:text-primary transition-colors">📞 0772 06 13 98</a>
-                <a href="https://wa.me/213551138781" target="_blank" rel="noopener noreferrer" className="hover:text-[#25D366] transition-colors">📱 واتساب: +213 551 13 87 81</a>
+                <a href="tel:0772061398" className="hover:text-primary transition-colors flex items-center gap-2">
+                  <span>📞</span>
+                  <span dir="ltr" className="font-mono tracking-wide">0772 06 13 98</span>
+                </a>
+                <a href="https://wa.me/213551138781" target="_blank" rel="noopener noreferrer" className="hover:text-[#25D366] transition-colors flex items-center gap-2">
+                  <span>📱 واتساب:</span>
+                  <span dir="ltr" className="font-mono tracking-wide">+213 551 13 87 81</span>
+                </a>
                 <a href="mailto:xdp51919@gmail.com" className="hover:text-primary transition-colors">📧 xdp51919@gmail.com</a>
                 <span>📍 الجزائر</span>
               </div>

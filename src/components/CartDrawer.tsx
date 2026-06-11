@@ -12,6 +12,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import CheckoutModal from "@/components/CheckoutModal";
+import ItemImage from "./ItemImage";
 
 const itemVariants = {
   initial: { opacity: 0, x: -30, scale: 0.95 },
@@ -85,11 +86,13 @@ const CartDrawer = () => {
                         layout
                         className="flex gap-3 p-3 rounded-xl bg-secondary/50"
                       >
-                        <img
-                          src={item.product.image}
-                          alt={item.product.nameAr}
-                          className="w-16 h-16 rounded-lg object-cover shrink-0"
-                        />
+                        <div className="w-16 h-16 rounded-lg overflow-hidden bg-secondary/30 flex items-center justify-center shrink-0">
+                          <ItemImage
+                            src={item.product.image}
+                            alt={item.product.nameAr}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium leading-tight line-clamp-2 mb-1">
                             {item.product.nameAr}
