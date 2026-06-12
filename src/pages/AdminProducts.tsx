@@ -96,6 +96,19 @@ const AdminProducts = () => {
     }
   };
 
+  const toggleInStock = async (product: any) => {
+    try {
+      const { _id, _creationTime, ...updateData } = product;
+      const newInStock = !product.inStock;
+      // If turning back on, restore at least 1 unit; if turning off, set 0
+      const newQty = newInStock ? Math.max(product.stockQuantity || 1, 1) : 0;
+      await updateProductMutation({ id: _id, ...updateData, inStock: newInStock, stockQuantity: newQty });
+      toast.success(newInStock ? "✅ تم تفعيل المخزون" : "🚫 تم إيقاف المخزون");
+    } catch {
+      toast.error("فشل تحديث حالة المخزون");
+    }
+  };
+
   const handleDeleteAll = async () => {
     if (!confirm(`⚠️ هذا سيحذف جميع المنتجات (${products?.length || 0}). هل أنت متأكد؟`)) return;
     try {
@@ -308,6 +321,7 @@ const AdminProducts = () => {
                   <th className="p-5 text-xs font-bold text-muted-foreground">الألوان</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">المقاسات</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">المخزون</th>
+                  <th className="p-5 text-xs font-bold text-muted-foreground">توفر</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">الحالة</th>
                   <th className="p-5 text-xs font-bold text-muted-foreground">الإجراءات</th>
                 </tr>
@@ -353,9 +367,33 @@ const AdminProducts = () => {
                       ) : <span className="text-muted-foreground/30 text-xs">—</span>}
                     </td>
                     <td className="p-4">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.stockQuantity < 5 ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}>
-                        {p.stockQuantity} قطعة
-                      </span>
+                      <div className="flex flex-col items-start gap-0.5">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                          !p.inStock || p.stockQuantity === 0
+                            ? "bg-red-500/15 text-red-400"
+                            : p.stockQuantity < 5
+                            ? "bg-orange-500/15 text-orange-400"
+                            : "bg-green-500/15 text-green-400"
+                        }`}>
+                          {p.stockQuantity} قطعة
+                        </span>
+                        {(!p.inStock || p.stockQuantity === 0) && (
+                          <span className="text-[9px] text-red-400/70">نفذ</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <button
+                        onClick={() => toggleInStock(p)}
+                        title={p.inStock ? "إيقاف المخزون" : "تفعيل المخزون"}
+                        className={`transition-all p-1.5 rounded-lg ${
+                          p.inStock
+                            ? "text-green-400 hover:bg-green-400/10"
+                            : "text-red-400 hover:bg-red-400/10"
+                        }`}
+                      >
+                        {p.inStock ? <ToggleRight size={22} /> : <ToggleLeft size={22} />}
+                      </button>
                     </td>
                     <td className="p-4">
                       <button onClick={() => toggleActive(p)} className={`transition-colors ${p.isActive ? "text-[#5D5FEF]" : "text-muted-foreground/30"}`}>

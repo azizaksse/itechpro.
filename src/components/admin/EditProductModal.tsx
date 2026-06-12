@@ -35,6 +35,7 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
     brand: "",
     image: "",
     stockQuantity: "0",
+    inStock: true,
     isActive: true,
     isNew: false,
     isPromo: false,
@@ -62,6 +63,7 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
         brand: product.brand || "",
         image: product.image || "",
         stockQuantity: String(product.stockQuantity),
+        inStock: product.inStock !== false,
         isActive: product.isActive,
         isNew: product.isNew,
         isPromo: product.isPromo,
@@ -175,13 +177,13 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
         brand: form.brand,
         image: form.image || galleryImages[0] || "",
         images: galleryImages.length > 0 ? galleryImages : (form.image ? [form.image] : []),
-        inStock: Number(form.stockQuantity) > 0,
+        inStock: form.inStock && Number(form.stockQuantity) > 0,
         stockQuantity: Number(form.stockQuantity),
         isActive: form.isActive,
         isNew: form.isNew,
         isPromo: form.isPromo,
         specs: specs,
-        colors: colors.length > 0 ? colors : undefined, // Array of {hex, label, imageId}
+        colors: colors.length > 0 ? colors : undefined,
         sizes: sizes.length > 0 ? sizes : undefined,
       });
       toast.success("تم تحديث المنتج بنجاح ✅");
@@ -260,6 +262,30 @@ const EditProductModal = ({ open, product, onClose, onProductUpdated }: EditProd
             <Label>كمية المخزون *</Label>
             <Input type="number" value={form.stockQuantity} onChange={(e) => updateField("stockQuantity", e.target.value)} dir="ltr" min="0" />
             {errors.stockQuantity && <p className="text-xs text-destructive">{errors.stockQuantity}</p>}
+          </div>
+
+          {/* ── In-Stock Toggle ── */}
+          <div
+            className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
+              form.inStock
+                ? "border-green-500/40 bg-green-500/5"
+                : "border-red-500/40 bg-red-500/5"
+            }`}
+          >
+            <div className="flex flex-col gap-0.5">
+              <Label className="cursor-pointer font-bold">
+                {form.inStock ? "✅ متوفر في المخزون" : "🚫 نفذ من المخزون"}
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                {form.inStock
+                  ? "المنتج متاح للشراء للزبائن"
+                  : "المنتج موقوف — لن يتمكن الزبائن من الطلب"}
+              </p>
+            </div>
+            <Switch
+              checked={form.inStock}
+              onCheckedChange={(v) => updateField("inStock", v)}
+            />
           </div>
 
           {/* ── COLORS ── */}

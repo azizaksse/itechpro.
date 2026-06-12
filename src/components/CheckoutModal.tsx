@@ -172,10 +172,11 @@ const CheckoutModal = ({ isOpen, onClose, product, cartItems, onOrderSuccess }: 
                       <p className="text-xs text-muted-foreground">هل لديك مشكلة أو استفسار؟ تواصل معنا:</p>
                       <a
                         href={`tel:${SUPPORT_PHONE}`}
+                        dir="ltr"
                         className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-primary/10 border border-primary/30 text-primary font-bold hover:bg-primary/20 transition-all"
                       >
                         <PhoneCall size={18} />
-                        {SUPPORT_PHONE_DISPLAY}
+                        <span dir="ltr" style={{ unicodeBidi: "plaintext" }}>{SUPPORT_PHONE_DISPLAY}</span>
                       </a>
                     </div>
                     <Button variant="hero" onClick={handleClose} className="w-full">متابعة التسوق</Button>

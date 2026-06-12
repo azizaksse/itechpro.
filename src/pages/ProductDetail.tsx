@@ -82,7 +82,11 @@ const ProductDetail = () => {
   const totalPages = Math.ceil(related.length / perPage);
   const visibleRelated = related.slice(relatedPage * perPage, relatedPage * perPage + perPage);
 
+  // Out-of-stock guard
+  const outOfStock = !product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
+
   const handleAddToCart = () => {
+    if (outOfStock) return;
     addItem(product);
     toast.success("تمت إضافة المنتج إلى السلة بنجاح", {
       style: { background: "hsl(0 0% 7%)", border: "1px solid hsl(0 72% 51% / 0.3)", color: "hsl(0 0% 95%)" },
@@ -212,13 +216,19 @@ const ProductDetail = () => {
 
             {/* Stock */}
             <div className="flex items-center gap-2 mb-6">
-              {product.inStock ? (
+              {outOfStock ? (
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold"
+                  style={{ background: "hsl(0 0% 20%)", color: "hsl(0 0% 55%)" }}
+                >
+                  <span className="w-2 h-2 rounded-full bg-gray-500" />
+                  نفذ من المخزون
+                </span>
+              ) : (
                 <>
                   <span className="w-2 h-2 rounded-full bg-green-500 stock-pulse" />
                   <span className="text-sm text-green-400 font-medium">متوفر في المخزون</span>
                 </>
-              ) : (
-                <span className="text-sm text-muted-foreground">غير متوفر</span>
               )}
             </div>
 
@@ -288,7 +298,8 @@ const ProductDetail = () => {
                 id="add-to-cart-btn"
                 variant="hero"
                 size="lg"
-                className="flex-1 pulse-glow btn-press"
+                disabled={outOfStock}
+                className={`flex-1 ${outOfStock ? "opacity-40 cursor-not-allowed" : "pulse-glow btn-press"}`}
                 onClick={handleAddToCart}
               >
                 <ShoppingCart size={18} className="ml-2" /> أضف إلى السلة
@@ -318,20 +329,26 @@ const ProductDetail = () => {
                 />
               </Button>
             </div>
-            {/* Buy Now — green to distinguish from red Add-to-Cart */}
+            {/* Buy Now — disabled when out of stock */}
             <button
               id="buy-now-btn"
-              onClick={() => setCheckoutOpen(true)}
-              className="w-full h-11 mb-8 rounded-md text-sm font-bold transition-all duration-200 btn-press hover:scale-[1.01]"
-              style={{
+              disabled={outOfStock}
+              onClick={() => !outOfStock && setCheckoutOpen(true)}
+              className={`w-full h-11 mb-8 rounded-md text-sm font-bold transition-all duration-200 ${
+                outOfStock ? "cursor-not-allowed opacity-40" : "btn-press hover:scale-[1.01]"
+              }`}
+              style={outOfStock ? {
+                background: "hsl(0 0% 22%)",
+                color: "hsl(0 0% 50%)",
+              } : {
                 background: "linear-gradient(135deg, hsl(142 72% 33%), hsl(142 72% 26%))",
                 boxShadow: "0 4px 20px hsl(142 72% 33% / 0.3)",
                 color: "#fff",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = "0.92"; }}
+              onMouseEnter={(e) => { if (!outOfStock) (e.currentTarget as HTMLElement).style.opacity = "0.92"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
             >
-              🛒 اشتري الآن
+              {outOfStock ? "⚠️ هذا المنتج غير متوفر حالياً" : "🛒 اشتري الآن"}
             </button>
 
             {/* Perks */}

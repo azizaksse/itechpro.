@@ -17,9 +17,13 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const wishlisted = isWishlisted(product._id || product.id);
 
+  // Out-of-stock guard: either inStock is false OR stockQuantity is 0
+  const outOfStock = !product.inStock || (product.stockQuantity !== undefined && product.stockQuantity <= 0);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (outOfStock) return;
     addItem(product);
     toast.success(t("cart.added"));
   };
@@ -40,6 +44,7 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
   const handleOrderNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (outOfStock) return;
     setCheckoutOpen(true);
   };
 
@@ -49,10 +54,10 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
     <>
       <Link to={`/product/${productId}`} className="block group">
         <div
-          className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
+          className={`rounded-2xl overflow-hidden flex flex-col transition-all duration-300 ${outOfStock ? "opacity-60 grayscale" : "hover:-translate-y-1"}`}
           style={{
             background: "hsl(0 0% 7%)",
-            border: "1px solid hsla(0,0%,100%,0.07)",
+            border: outOfStock ? "1px solid hsla(0,0%,100%,0.04)" : "1px solid hsla(0,0%,100%,0.07)",
             boxShadow: "0 4px 24px -6px rgba(0,0,0,0.5)",
           }}
         >
@@ -60,7 +65,15 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
           <div className="relative bg-[hsl(0,0%,10%)] overflow-hidden">
             {/* Badge — top left */}
             <div className="absolute top-3 left-3 z-10 flex flex-col gap-1.5">
-              {product.isPromo && (
+              {outOfStock && (
+                <span
+                  className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide text-white"
+                  style={{ background: "hsl(0 0% 30%)" }}
+                >
+                  نفذ من المخزون
+                </span>
+              )}
+              {!outOfStock && product.isPromo && (
                 <span
                   className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide text-white"
                   style={{ background: "hsl(0 72% 51%)" }}
@@ -68,7 +81,7 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
                   PROMO
                 </span>
               )}
-              {product.isNew && (
+              {!outOfStock && product.isNew && (
                 <span
                   className="px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wide text-white"
                   style={{ background: "hsl(0 72% 45%)" }}
@@ -153,14 +166,17 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
               <button
                 onClick={handleAddToCart}
                 aria-label="أضف للسلة"
-                className="w-10 h-10 shrink-0 rounded-lg border flex items-center justify-center transition-all duration-200 hover:scale-105 btn-press"
+                disabled={outOfStock}
+                className={`w-10 h-10 shrink-0 rounded-lg border flex items-center justify-center transition-all duration-200 ${
+                  outOfStock ? "cursor-not-allowed opacity-40" : "hover:scale-105 btn-press"
+                }`}
                 style={{
-                  borderColor: "hsla(0,72%,51%,0.4)",
-                  color: "hsl(0 72% 51%)",
+                  borderColor: outOfStock ? "hsla(0,0%,50%,0.3)" : "hsla(0,72%,51%,0.4)",
+                  color: outOfStock ? "hsl(0 0% 50%)" : "hsl(0 72% 51%)",
                   background: "transparent",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "hsl(0 72% 51% / 0.12)";
+                  if (!outOfStock) (e.currentTarget as HTMLElement).style.background = "hsl(0 72% 51% / 0.12)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.background = "transparent";
@@ -169,16 +185,20 @@ const ProductCard = ({ product, index = 0 }: { product: any; index?: number }) =
                 <ShoppingCart size={16} />
               </button>
 
-              {/* Order Now button — opens checkout modal via portal */}
+              {/* Order Now button */}
               <button
                 onClick={handleOrderNow}
-                className="flex-1 h-10 rounded-lg text-sm font-bold text-white transition-all duration-200 hover:opacity-90 btn-press"
+                disabled={outOfStock}
+                className={`flex-1 h-10 rounded-lg text-sm font-bold text-white transition-all duration-200 ${
+                  outOfStock ? "cursor-not-allowed" : "hover:opacity-90 btn-press"
+                }`}
                 style={{
-                  background: "hsl(0 72% 51%)",
-                  boxShadow: "0 4px 14px hsl(0 72% 51% / 0.3)",
+                  background: outOfStock ? "hsl(0 0% 25%)" : "hsl(0 72% 51%)",
+                  boxShadow: outOfStock ? "none" : "0 4px 14px hsl(0 72% 51% / 0.3)",
+                  color: outOfStock ? "hsl(0 0% 55%)" : "#fff",
                 }}
               >
-                اطلب الآن
+                {outOfStock ? "غير متوفر" : "اطلب الآن"}
               </button>
             </div>
           </div>
